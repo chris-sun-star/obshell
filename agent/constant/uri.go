@@ -35,6 +35,7 @@ const (
 	URI_POOLS_GROUP      = "/resource-pools"
 	URI_RECYCLEBIN_GROUP = "/recyclebin"
 	URI_OBPROXY_GROUP    = "/obproxy"
+	URI_METRIC_GROUP     = "/metrics"
 
 	URI_INFO      = "/info"
 	URI_TIME      = "/time"

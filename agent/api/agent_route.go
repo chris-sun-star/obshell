@@ -110,6 +110,7 @@ func InitOcsAgentRoutes(s *http2.State, r *gin.Engine, isLocalRoute bool) {
 	InitBackupRoutes(v1, isLocalRoute)
 	InitRestoreRoutes(v1, isLocalRoute)
 	InitObproxyRoutes(v1, isLocalRoute)
+	InitMetricRoutes(v1, isLocalRoute)
 
 	// ob routes
 	ob.POST(constant.URI_INIT, obInitHandler)

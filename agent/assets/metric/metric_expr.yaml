@@ -1,0 +1,2 @@
+qps: "sum(rate(ob_proxy_qps_total{$__labels}[$__interval])) by ($__group_labels)"
+latency: "sum(rate(ob_proxy_qps_total{$__labels}[$__interval])) by ($__group_labels)"

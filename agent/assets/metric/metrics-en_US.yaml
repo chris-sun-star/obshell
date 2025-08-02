@@ -1,0 +1,13 @@
+OBPROXY:
+  - name: "QPS"
+    groups:
+      - name: "QPS"
+        metrics:
+          - name: "qps"
+            unit: "count"
+  - name: "Latency"
+    groups:
+      - name: "Latency"
+        metrics:
+          - name: "latency"
+            unit: "ms"

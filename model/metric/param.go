@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2024 OceanBase.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package metric
+
+type QueryRange struct {
+	StartTimestamp float64 `json:"startTimestamp"`
+	EndTimestamp   float64 `json:"endTimestamp"`
+	Step           int64   `json:"step"`
+}
+
+type MetricQuery struct {
+	Labels      []KVPair     `json:"labels"`
+	GroupLabels []string     `json:"groupLabels"`
+	QueryRange  QueryRange   `json:"range"`
+	Metrics     []string     `json:"metrics"`
+	Server      *Prometheus `json:"server"`
+}
+
+type Prometheus struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}

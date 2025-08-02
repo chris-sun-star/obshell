@@ -4,7 +4,7 @@ NAME=obshell
 RELEASE=0
 DIST=0
 PWD ?= $(shell pwd)
-PROXY=https://goproxy.cn
+PROXY=https://goproxy.io
 
 GO              := GO111MODULE=on GOPROXY=${PROXY},direct go
 BUILD_FLAG      := -p $(PROCESSOR)
