@@ -147,4 +147,16 @@ const (
 	URI_AGENT_RPC_PREFIX    = URI_RPC_V1 + URI_AGENT_GROUP
 	URI_OBSERVER_RPC_PREFIX = URI_RPC_V1 + URI_OBSERVER_GROUP
 	URI_OB_RPC_PREFIX       = URI_RPC_V1 + URI_OB_GROUP
+
+	// Used for alarm
+	URI_ALARM_GROUP   = "/alarm"
+	URI_ALERT_GROUP   = "/alert"
+	URI_ALERTS        = "/alerts"
+	URI_SILENCE_GROUP = "/silence"
+	URI_SILENCERS     = "/silencers"
+	URI_RULE_GROUP    = "/rule"
+	URI_RULES         = "/rules"
+
+	URI_PARAM_ID      = "id"
+	URI_PATH_PARAM_ID = "/:" + URI_PARAM_ID
 )

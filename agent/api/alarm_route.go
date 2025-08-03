@@ -33,17 +33,17 @@ func InitAlarmRoutes(parentGroup *gin.RouterGroup, isLocalRoute bool) {
 
 	// alerts
 	alert := alarm.Group(constant.URI_ALERT_GROUP)
-	alert.POST(constant.URI_ALERTS, handler.ListAlerts)
+	alert.POST(constant.URI_ALERTS, common.Wrapper(handler.ListAlerts))
 
 	// silencers
 	silence := alarm.Group(constant.URI_SILENCE_GROUP)
-	silence.POST(constant.URI_SILENCERS, handler.ListSilencers)
-	silence.GET(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, handler.GetSilencer)
-	silence.PUT(constant.URI_SILENCERS, handler.CreateOrUpdateSilencer)
-	silence.DELETE(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, handler.DeleteSilencer)
+	silence.POST(constant.URI_SILENCERS, common.Wrapper(handler.ListSilencers))
+	silence.GET(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, common.Wrapper(handler.GetSilencer))
+	silence.PUT(constant.URI_SILENCERS, common.Wrapper(handler.CreateOrUpdateSilencer))
+	silence.DELETE(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, common.WrapperWithNoContent(handler.DeleteSilencer))
 
 	// rules
 	rule := alarm.Group(constant.URI_RULE_GROUP)
-	rule.POST(constant.URI_RULES, handler.ListRules)
-	rule.GET(constant.URI_RULES+constant.URI_PATH_PARAM_NAME, handler.GetRule)
+	rule.POST(constant.URI_RULES, common.Wrapper(handler.ListRules))
+	rule.GET(constant.URI_RULES+constant.URI_PATH_PARAM_NAME, common.Wrapper(handler.GetRule))
 }
