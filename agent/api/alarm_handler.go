@@ -19,7 +19,7 @@ import (
 	"github.com/oceanbase/obshell/model/alarm/alert"
 	"github.com/oceanbase/obshell/model/alarm/rule"
 	"github.com/oceanbase/obshell/model/alarm/silence"
-	"github.com/oceanbase/obshell/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 // ListAlerts

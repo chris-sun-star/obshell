@@ -22,7 +22,7 @@ import (
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	metricconst "github.com/oceanbase/obshell/agent/executor/metric/constant"
 	"github.com/oceanbase/obshell/model/alarm/rule"
-	"github.com/oceanbase/obshell/pkg/errors"
+	"github.com/pkg/errors"
 
 	promv1 "github.com/prometheus/prometheus/web/api/v1"
 	logger "github.com/sirupsen/logrus"

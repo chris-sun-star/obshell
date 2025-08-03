@@ -22,7 +22,7 @@ import (
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/model/alarm/silence"
 	"github.com/oceanbase/obshell/model/oceanbase"
-	"github.com/oceanbase/obshell/pkg/errors"
+	"github.com/pkg/errors"
 
 	"github.com/go-openapi/strfmt"
 	ammodels "github.com/prometheus/alertmanager/api/v2/models"
