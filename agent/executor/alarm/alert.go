@@ -37,9 +37,9 @@ func ListAlerts(ctx context.Context, filter *alert.AlertFilter) ([]alert.Alert, 
 		"receiver":    "",
 	}).SetHeader("content-type", "application/json").SetResult(&gettableAlerts).Get(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.AlertUrl))
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrExternal, "Query alerts from alertmanager")
+		return nil, errors.Wrap(err, "Query alerts from alertmanager")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Newf(errors.ErrExternal, "Query alerts from alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("Query alerts from alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	filteredAlerts := make([]alert.Alert, 0)
 	for _, gettableAlert := range gettableAlerts {

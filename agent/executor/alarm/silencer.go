@@ -33,9 +33,9 @@ import (
 func DeleteSilencer(ctx context.Context, id string) error {
 	resp, err := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json").Delete(fmt.Sprintf("%s%s/%s", alarmconstant.AlertManagerAddress, alarmconstant.SingleSilencerUrl, id))
 	if err != nil {
-		return errors.Wrap(err, errors.ErrExternal, "Delete silencer from alertmanager")
+		return errors.Wrap(err, "Delete silencer from alertmanager")
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Newf(errors.ErrExternal, "Delete silencer got unexpected status: %d", resp.StatusCode())
+		return errors.Errorf("Delete silencer got unexpected status: %d", resp.StatusCode())
 	}
 	return nil
 }
@@ -44,9 +44,9 @@ func GetSilencer(ctx context.Context, id string) (*silence.SilencerResponse, err
 	gettableSilencer := ammodels.GettableSilence{}
 	resp, err := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json").SetResult(&gettableSilencer).Get(fmt.Sprintf("%s%s/%s", alarmconstant.AlertManagerAddress, alarmconstant.SingleSilencerUrl, id))
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrExternal, "Get silencer from alertmanager")
+		return nil, errors.Wrap(err, "Get silencer from alertmanager")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Newf(errors.ErrExternal, "Get silencer got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("Get silencer got unexpected status: %d", resp.StatusCode())
 	}
 	return silence.NewSilencerResponse(&gettableSilencer), nil
 }
@@ -78,10 +78,10 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 			instanceType = instance.Type
 		}
 		if instance.Type != instanceType {
-			return nil, errors.New(errors.ErrBadRequest, "All instances should belong to one type")
+			return nil, errors.New("All instances should belong to one type")
 		}
 		if instanceType != oceanbase.TypeOBCluster && obcluster != "" && obcluster != instance.OBCluster {
-			return nil, errors.New(errors.ErrBadRequest, "All instances should belong to one obcluster")
+			return nil, errors.New("All instances should belong to one obcluster")
 		}
 		obcluster = instance.OBCluster
 		switch instance.Type {
@@ -97,7 +97,7 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 			instances = append(instances, instance.OBTenant)
 			labelInstance = alarmconstant.LabelOBTenant
 		default:
-			return nil, errors.New(errors.ErrBadRequest, "Unknown instance type")
+			return nil, errors.New("Unknown instance type")
 		}
 	}
 	instanceValues := strings.Join(instances, alarmconstant.RegexOR)
@@ -152,9 +152,9 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 	okBody := amsilence.PostSilencesOKBody{}
 	resp, err := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json").SetBody(postableSilence).SetResult(&okBody).Post(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.MultiSilencerUrl))
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrExternal, "Create silencer in alertmanager")
+		return nil, errors.Wrap(err, "Create silencer in alertmanager")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Newf(errors.ErrExternal, "Create silencer in alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("Create silencer in alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	state := string(silence.StateActive)
 	gettableSilencer := ammodels.GettableSilence{
@@ -174,9 +174,9 @@ func ListSilencers(ctx context.Context, filter *silence.SilencerFilter) ([]silen
 	req := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json")
 	resp, err := req.SetResult(&gettableSilencers).Get(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.MultiSilencerUrl))
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrExternal, "Query silencers from alertmanager")
+		return nil, errors.Wrap(err, "Query silencers from alertmanager")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Newf(errors.ErrExternal, "Query silencers from alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("Query silencers from alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	logger.Infof("resp: %v", resp)
 	logger.Infof("silencers: %v", gettableSilencers)

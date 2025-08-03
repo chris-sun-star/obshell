@@ -19,7 +19,6 @@ import (
 	"github.com/oceanbase/obshell/model/alarm/alert"
 	"github.com/oceanbase/obshell/model/alarm/rule"
 	"github.com/oceanbase/obshell/model/alarm/silence"
-	"github.com/pkg/errors"
 )
 
 // ListAlerts
@@ -27,7 +26,7 @@ func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
 	filter := &alert.AlertFilter{}
 	err := ctx.Bind(filter)
 	if err != nil {
-		return nil, errors.NewBadRequest(err.Error())
+		return nil, err
 	}
 	return alarm.ListAlerts(ctx, filter)
 }
@@ -37,7 +36,7 @@ func ListSilencers(ctx *gin.Context) ([]silence.SilencerResponse, error) {
 	filter := &silence.SilencerFilter{}
 	err := ctx.Bind(filter)
 	if err != nil {
-		return nil, errors.NewBadRequest(err.Error())
+		return nil, err
 	}
 	return alarm.ListSilencers(ctx, filter)
 }
@@ -53,7 +52,7 @@ func CreateOrUpdateSilencer(ctx *gin.Context) (*silence.SilencerResponse, error)
 	param := &silence.SilencerParam{}
 	err := ctx.Bind(param)
 	if err != nil {
-		return nil, errors.NewBadRequest(err.Error())
+		return nil, err
 	}
 	return alarm.CreateOrUpdateSilencer(ctx, param)
 }
@@ -69,7 +68,7 @@ func ListRules(ctx *gin.Context) ([]rule.RuleResponse, error) {
 	filter := &rule.RuleFilter{}
 	err := ctx.Bind(filter)
 	if err != nil {
-		return nil, errors.NewBadRequest(err.Error())
+		return nil, err
 	}
 	return alarm.ListRules(ctx, filter)
 }

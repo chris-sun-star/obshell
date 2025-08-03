@@ -31,23 +31,23 @@ import (
 func GetRule(ctx context.Context, name string) (*rule.RuleResponse, error) {
 	rules, err := ListRules(ctx, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrExternal, "Query rules from prometheus")
+		return nil, errors.Wrap(err, "Query rules from prometheus")
 	}
 	for _, rule := range rules {
 		if rule.Name == name {
 			return &rule, nil
 		}
 	}
-	return nil, errors.New(errors.ErrNotFound, "Rule not found")
+	return nil, errors.New("Rule not found")
 }
 
 func ListRules(ctx context.Context, filter *rule.RuleFilter) ([]rule.RuleResponse, error) {
 	promRuleResponse := &rule.PromRuleResponse{}
 	resp, err := getClient().R().SetContext(ctx).SetQueryParam("type", "alert").SetHeader("content-type", "application/json").SetResult(promRuleResponse).Get(fmt.Sprintf("%s%s", metricconst.PrometheusAddress, alarmconstant.RuleUrl))
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrExternal, "Query rules from prometheus")
+		return nil, errors.Wrap(err, "Query rules from prometheus")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Newf(errors.ErrExternal, "Query rules from prometheus got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("Query rules from prometheus got unexpected status: %d", resp.StatusCode())
 	}
 	logger.Debugf("Response from prometheus: %v", resp)
 	filteredRules := make([]rule.RuleResponse, 0)
@@ -85,7 +85,7 @@ func filterRule(rule *rule.RuleResponse, filter *rule.RuleFilter) bool {
 			matched = matched && (rule.InstanceType == filter.InstanceType)
 		}
 		if filter.Severity != "" {
-			matched = matched && (rule.Severity == filter.Severity)
+			matched = matched && (string(rule.Severity) == filter.Severity)
 		}
 	}
 	return matched

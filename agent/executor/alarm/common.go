@@ -39,9 +39,9 @@ func reloadAlertmanager() error {
 	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second))
 	resp, err := client.R().SetHeader("content-type", "application/json").Post(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.AlertmanagerReloadUrl))
 	if err != nil {
-		return errors.Wrap(err, errors.ErrExternal, "Reload alertmanager failed")
+		return errors.Wrap(err, "Reload alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Newf(errors.ErrExternal, "Reload alertmanager got unexpected status: %d", resp.StatusCode())
+		return errors.Errorf( "Reload alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	return nil
 }
@@ -50,9 +50,9 @@ func reloadPrometheus() error {
 	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second))
 	resp, err := client.R().SetHeader("content-type", "application/json").Post(fmt.Sprintf("%s%s", metricconst.PrometheusAddress, alarmconstant.PrometheusReloadUrl))
 	if err != nil {
-		return errors.Wrap(err, errors.ErrExternal, "Reload prometheus failed")
+		return errors.Wrap(err, "Reload prometheus failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Newf(errors.ErrExternal, "Reload prometheus got unexpected status: %d", resp.StatusCode())
+		return errors.Errorf( "Reload prometheus got unexpected status: %d", resp.StatusCode())
 	}
 	return nil
 }
