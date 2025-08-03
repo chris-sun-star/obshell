@@ -20,10 +20,9 @@ import (
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	metricconst "github.com/oceanbase/obshell/agent/executor/metric/constant"
-	"github.com/oceanbase/obshell/pkg/errors"
+	"github.com/pkg/errors"
 
 	"github.com/go-resty/resty/v2"
-	logger "github.com/sirupsen/logrus"
 )
 
 var restyClient *resty.Client
