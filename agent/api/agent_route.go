@@ -21,6 +21,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/oceanbase/obshell/agent/api/common"
+	"github.com/oceanbase/obshell/agent/api/handler"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
 	http2 "github.com/oceanbase/obshell/agent/lib/http"
@@ -111,6 +112,7 @@ func InitOcsAgentRoutes(s *http2.State, r *gin.Engine, isLocalRoute bool) {
 	InitRestoreRoutes(v1, isLocalRoute)
 	InitObproxyRoutes(v1, isLocalRoute)
 	InitMetricRoutes(v1, isLocalRoute)
+	InitAlarmRoutes(v1, isLocalRoute)
 
 	// ob routes
 	ob.POST(constant.URI_INIT, obInitHandler)

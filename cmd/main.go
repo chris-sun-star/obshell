@@ -27,6 +27,7 @@ import (
 	"github.com/oceanbase/obshell/agent/cmd/daemon"
 	"github.com/oceanbase/obshell/agent/cmd/server"
 	"github.com/oceanbase/obshell/agent/constant"
+	"github.com/oceanbase/obshell/agent/executor"
 	"github.com/oceanbase/obshell/client/cmd/agent"
 	"github.com/oceanbase/obshell/client/cmd/backup"
 	"github.com/oceanbase/obshell/client/cmd/cluster"
@@ -41,6 +42,7 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(1)
+	executor.RegisterAllTask()
 	cmds := newCmd()
 
 	cmds.AddCommand(admin.NewAdminCmd())
