@@ -18,7 +18,6 @@ package executor
 
 import (
 	"github.com/oceanbase/obshell/agent/executor/agent"
-	"github.com/oceanbase/obshell/agent/executor/alarm"
 	"github.com/oceanbase/obshell/agent/executor/host"
 	"github.com/oceanbase/obshell/agent/executor/ob"
 	"github.com/oceanbase/obshell/agent/executor/obproxy"
@@ -33,7 +32,6 @@ import (
 
 func RegisterAllTask() {
 	agent.RegisterAgentTask()
-	alarm.RegisterAlarmTask()
 	ob.RegisterObInitTask()
 	ob.RegisterObStartTask()
 	ob.RegisterObStopTask()
