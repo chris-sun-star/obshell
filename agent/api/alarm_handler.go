@@ -30,7 +30,7 @@ import (
 // @Produce json
 // @Param filter body alert.AlertFilter true "alert filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]alert.Alert}
-// @Router /api/v1/alarm/alerts [post]
+// @Router /api/v1/alarm/alert/alerts [post]
 func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
 	filter := &alert.AlertFilter{}
 	err := ctx.Bind(filter)
@@ -49,7 +49,7 @@ func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
 // @Produce json
 // @Param filter body silence.SilencerFilter true "silencer filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]silence.SilencerResponse}
-// @Router /api/v1/alarm/silencers [post]
+// @Router /api/v1/alarm/silence/silencers [post]
 func ListSilencers(ctx *gin.Context) ([]silence.SilencerResponse, error) {
 	filter := &silence.SilencerFilter{}
 	err := ctx.Bind(filter)
@@ -68,7 +68,7 @@ func ListSilencers(ctx *gin.Context) ([]silence.SilencerResponse, error) {
 // @Produce json
 // @Param id path string true "silencer id"
 // @Success 200 {object} http.OcsAgentResponse{data=silence.SilencerResponse}
-// @Router /api/v1/alarm/silencers/{id} [get]
+// @Router /api/v1/alarm/silence/silencers/{id} [get]
 func GetSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
 	id := ctx.Param("id")
 	return alarm.GetSilencer(ctx, id)
@@ -83,7 +83,7 @@ func GetSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
 // @Produce json
 // @Param silencer body silence.SilencerParam true "silencer param"
 // @Success 200 {object} http.OcsAgentResponse{data=silence.SilencerResponse}
-// @Router /api/v1/alarm/silencers [put]
+// @Router /api/v1/alarm/silence/silencers [put]
 func CreateOrUpdateSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
 	param := &silence.SilencerParam{}
 	err := ctx.Bind(param)
@@ -102,7 +102,7 @@ func CreateOrUpdateSilencer(ctx *gin.Context) (*silence.SilencerResponse, error)
 // @Produce json
 // @Param id path string true "silencer id"
 // @Success 204
-// @Router /api/v1/alarm/silencers/{id} [delete]
+// @Router /api/v1/alarm/silence/silencers/{id} [delete]
 func DeleteSilencer(ctx *gin.Context) (any, error) {
 	id := ctx.Param("id")
 	return nil, alarm.DeleteSilencer(ctx, id)
@@ -117,7 +117,7 @@ func DeleteSilencer(ctx *gin.Context) (any, error) {
 // @Produce json
 // @Param filter body rule.RuleFilter true "rule filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]rule.RuleResponse}
-// @Router /api/v1/alarm/rules [post]
+// @Router /api/v1/alarm/rule/rules [post]
 func ListRules(ctx *gin.Context) ([]rule.RuleResponse, error) {
 	filter := &rule.RuleFilter{}
 	err := ctx.Bind(filter)
@@ -136,7 +136,7 @@ func ListRules(ctx *gin.Context) ([]rule.RuleResponse, error) {
 // @Produce json
 // @Param name path string true "rule name"
 // @Success 200 {object} http.OcsAgentResponse{data=rule.RuleResponse}
-// @Router /api/v1/alarm/rules/{name} [get]
+// @Router /api/v1/alarm/rule/rules/{name} [get]
 func GetRule(ctx *gin.Context) (*rule.RuleResponse, error) {
 	name := ctx.Param("name")
 	return alarm.GetRule(ctx, name)

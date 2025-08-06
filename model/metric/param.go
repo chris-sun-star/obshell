@@ -16,6 +16,8 @@
 
 package metric
 
+import "github.com/oceanbase/obshell/model/common"
+
 type QueryRange struct {
 	StartTimestamp float64 `json:"startTimestamp"`
 	EndTimestamp   float64 `json:"endTimestamp"`
@@ -23,11 +25,11 @@ type QueryRange struct {
 }
 
 type MetricQuery struct {
-	Labels      []KVPair     `json:"labels"`
-	GroupLabels []string     `json:"groupLabels"`
-	QueryRange  QueryRange   `json:"range"`
-	Metrics     []string     `json:"metrics"`
-	Server      *Prometheus `json:"server"`
+	Labels      []common.KVPair `json:"labels"`
+	GroupLabels []string        `json:"groupLabels"`
+	QueryRange  QueryRange      `json:"range"`
+	Metrics     []string        `json:"metrics"`
+	Server      *Prometheus     `json:"server"`
 }
 
 type Prometheus struct {

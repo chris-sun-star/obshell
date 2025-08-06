@@ -29,6 +29,7 @@ import (
 	"github.com/oceanbase/obshell/agent/bindata"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
+	"github.com/oceanbase/obshell/model/common"
 	model "github.com/oceanbase/obshell/model/metric"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -38,27 +39,26 @@ const (
 	PROMETHEUS_ADDRESS      = "http://127.0.0.1:9090"
 	METRIC_RANGE_QUERY_URL  = "/api/v1/query_range"
 	DEFAULT_TIMEOUT         = 30
-	METRIC_CONFIG_FILE_ENUS = "metric/metrics-en_US.yaml"
-	METRIC_CONFIG_FILE_ZHCN = "metric/metrics-zh_CN.yaml"
-	METRIC_EXPR_CONFIG_FILE = "metric/metric_expr.yaml"
-	KEY_INTERVAL            = "$__interval"
-	KEY_LABELS              = "$__labels"
-	KEY_GROUP_LABELS        = "$__group_labels"
+	METRIC_CONFIG_FILE_ENUS = "agent/assets/metric/metrics-en_US.yaml"
+	METRIC_CONFIG_FILE_ZHCN = "agent/assets/metric/metrics-zh_CN.yaml"
+	METRIC_EXPR_CONFIG_FILE = "agent/assets/metric/metric_expr.yaml"
+	KEY_INTERVAL            = "@INTERVAL"
+	KEY_LABELS              = "@LABELS"
+	KEY_GROUP_LABELS        = "@GBLABELS"
 )
 
 var metricExprConfig map[string]string
 
-func LoadMetricExprConfig() error {
+func init() {
 	metricExprConfig = make(map[string]string)
 	metricExprConfigContent, err := bindata.Asset(METRIC_EXPR_CONFIG_FILE)
 	if err != nil {
-		return errors.Wrap(err, "load metric expr config failed")
+		logrus.WithError(err).Error("load metric expr config failed")
 	}
 	err = yaml.Unmarshal(metricExprConfigContent, &metricExprConfig)
 	if err != nil {
-		return errors.Wrap(err, "parse metric expr config data failed")
+		logrus.WithError(err).Error("parse metric expr config data failed")
 	}
-	return nil
 }
 
 func ListMetricClasses(scope, language string) ([]model.MetricClass, error) {
@@ -91,7 +91,7 @@ func ListMetricClasses(scope, language string) ([]model.MetricClass, error) {
 	return metricClasses, err
 }
 
-func replaceQueryVariables(exprTemplate string, labels []model.KVPair, groupLabels []string, step int64) string {
+func replaceQueryVariables(exprTemplate string, labels []common.KVPair, groupLabels []string, step int64) string {
 	labelStrParts := make([]string, 0, len(labels))
 	for _, label := range labels {
 		labelStrParts = append(labelStrParts, fmt.Sprintf("%s=\"%s\"", label.Key, label.Value))
@@ -107,9 +107,9 @@ func extractMetricData(name string, resp *model.PrometheusQueryRangeResponse) []
 	for _, result := range resp.Data.Result {
 		values := make([]model.MetricValue, 0)
 
-		labels := make([]model.KVPair, 0, len(result.Metric))
+		labels := make([]common.KVPair, 0, len(result.Metric))
 		for k, v := range result.Metric {
-			labels = append(labels, model.KVPair{Key: k, Value: v})
+			labels = append(labels, common.KVPair{Key: k, Value: v})
 		}
 
 		metric := model.Metric{

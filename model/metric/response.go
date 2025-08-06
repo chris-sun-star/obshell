@@ -16,32 +16,38 @@
 
 package metric
 
-type MetricValue struct {
-	Timestamp float64 `json:"timestamp"`
-	Value     float64 `json:"value"`
-}
+import "github.com/oceanbase/obshell/model/common"
 
-type Metric struct {
-	Name   string   `json:"name"`
-	Labels []KVPair `json:"labels"`
-}
-
-type MetricData struct {
-	Metric Metric        `json:"metric"`
-	Values []MetricValue `json:"values"`
-}
-
-type MetricInfo struct {
-	Name string `json:"name"`
-	Unit string `json:"unit"`
+type MetricClass struct {
+	Name         string        `json:"name" yaml:"name" binding:"required"`
+	Description  string        `json:"description" yaml:"description" binding:"required"`
+	MetricGroups []MetricGroup `json:"metricGroups" yaml:"metricGroups" binding:"required"`
 }
 
 type MetricGroup struct {
-	Name    string       `json:"name"`
-	Metrics []MetricInfo `json:"metrics"`
+	Name        string       `json:"name" yaml:"name" binding:"required"`
+	Description string       `json:"description" yaml:"description" binding:"required"`
+	Metrics     []MetricMeta `json:"metrics" yaml:"metrics" binding:"required"`
 }
 
-type MetricClass struct {
-	Name   string        `json:"name"`
-	Groups []MetricGroup `json:"groups"`
+type MetricMeta struct {
+	Name        string `json:"name" yaml:"name" binding:"required"`
+	Unit        string `json:"unit" yaml:"unit" binding:"required"`
+	Description string `json:"description" yaml:"description" binding:"required"`
+	Key         string `json:"key" yaml:"key" binding:"required"`
+}
+
+type Metric struct {
+	Name   string          `json:"name" yaml:"name"`
+	Labels []common.KVPair `json:"labels" yaml:"labels"`
+}
+
+type MetricValue struct {
+	Value     float64 `json:"value" yaml:"value" binding:"required"`
+	Timestamp float64 `json:"timestamp" yaml:"timestamp" binding:"required"`
+}
+
+type MetricData struct {
+	Metric Metric        `json:"metric" yaml:"metric" binding:"required"`
+	Values []MetricValue `json:"values" yaml:"values" binding:"required"`
 }
