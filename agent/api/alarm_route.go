@@ -39,7 +39,7 @@ func InitAlarmRoutes(parentGroup *gin.RouterGroup, isLocalRoute bool) {
 	silence.POST(constant.URI_SILENCERS, common.Wrapper(ListSilencers))
 	silence.GET(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, common.Wrapper(GetSilencer))
 	silence.PUT(constant.URI_SILENCERS, common.Wrapper(CreateOrUpdateSilencer))
-	silence.DELETE(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, common.WrapperWithNoContent(DeleteSilencer))
+	silence.DELETE(constant.URI_SILENCERS+constant.URI_PATH_PARAM_ID, common.Wrapper(DeleteSilencer))
 
 	// rules
 	rule := alarm.Group(constant.URI_RULE_GROUP)
