@@ -28,7 +28,7 @@ import (
 // @Tags alarm
 // @Accept json
 // @Produce json
-// @Param filter body alert.AlertFilter true "alert filter"
+// @Param filter body alert.AlertFilter false "alert filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]alert.Alert}
 // @Router /api/v1/alarm/alert/alerts [post]
 func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
@@ -47,7 +47,7 @@ func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
 // @Tags alarm
 // @Accept json
 // @Produce json
-// @Param filter body silence.SilencerFilter true "silencer filter"
+// @Param filter body silence.SilencerFilter false "silencer filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]silence.SilencerResponse}
 // @Router /api/v1/alarm/silence/silencers [post]
 func ListSilencers(ctx *gin.Context) ([]silence.SilencerResponse, error) {
@@ -81,7 +81,7 @@ func GetSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
 // @Tags alarm
 // @Accept json
 // @Produce json
-// @Param silencer body silence.SilencerParam true "silencer param"
+// @Param silencer body silence.SilencerParam true "silencer"
 // @Success 200 {object} http.OcsAgentResponse{data=silence.SilencerResponse}
 // @Router /api/v1/alarm/silence/silencers [put]
 func CreateOrUpdateSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
@@ -115,7 +115,7 @@ func DeleteSilencer(ctx *gin.Context) (any, error) {
 // @Tags alarm
 // @Accept json
 // @Produce json
-// @Param filter body rule.RuleFilter true "rule filter"
+// @Param filter body rule.RuleFilter false "rule filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]rule.RuleResponse}
 // @Router /api/v1/alarm/rule/rules [post]
 func ListRules(ctx *gin.Context) ([]rule.RuleResponse, error) {
