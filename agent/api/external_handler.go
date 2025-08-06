@@ -20,8 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/oceanbase/obshell/agent/api/common"
-	"github.com/oceanbase/obshell/agent/lib/http"
-	externalmodel "github.com/oceanbase/obshell/agent/model/external"
+	"github.com/oceanbase/obshell/agent/model/external"
 	"github.com/oceanbase/obshell/agent/repository"
 )
 
@@ -30,13 +29,13 @@ import (
 // @Tags system
 // @Accept json
 // @Produce json
-// @Param config body externalmodel.PrometheusConfig true "Prometheus configuration"
+// @Param config body external.PrometheusConfig true "Prometheus configuration"
 // @Success 200 {object} http.OcsAgentResponse
 // @Failure 400 {object} http.OcsAgentResponse
 // @Failure 500 {object} http.OcsAgentResponse
 // @Router /api/v1/system/externals/prometheus [put]
 func SetPrometheusConfig(c *gin.Context) {
-	var cfg externalmodel.PrometheusConfig
+	var cfg external.PrometheusConfig
 	if err := c.BindJSON(&cfg); err != nil {
 		common.SendResponse(c, nil, err)
 		return
@@ -54,7 +53,7 @@ func SetPrometheusConfig(c *gin.Context) {
 // @Tags system
 // @Accept json
 // @Produce json
-// @Success 200 {object} http.OcsAgentResponse{data=externalmodel.PrometheusConfig}
+// @Success 200 {object} http.OcsAgentResponse{data=external.PrometheusConfig}
 // @Failure 500 {object} http.OcsAgentResponse
 // @Router /api/v1/system/externals/prometheus [get]
 func GetPrometheusConfig(c *gin.Context) {
@@ -76,13 +75,13 @@ func GetPrometheusConfig(c *gin.Context) {
 // @Tags system
 // @Accept json
 // @Produce json
-// @Param config body externalmodel.AlertmanagerConfig true "Alertmanager configuration"
+// @Param config body external.AlertmanagerConfig true "Alertmanager configuration"
 // @Success 200 {object} http.OcsAgentResponse
 // @Failure 400 {object} http.OcsAgentResponse
 // @Failure 500 {object} http.OcsAgentResponse
 // @Router /api/v1/system/externals/alertmanager [put]
 func SetAlertmanagerConfig(c *gin.Context) {
-	var cfg externalmodel.AlertmanagerConfig
+	var cfg external.AlertmanagerConfig
 	if err := c.BindJSON(&cfg); err != nil {
 		common.SendResponse(c, nil, err)
 		return
@@ -100,7 +99,7 @@ func SetAlertmanagerConfig(c *gin.Context) {
 // @Tags system
 // @Accept json
 // @Produce json
-// @Success 200 {object} http.OcsAgentResponse{data=externalmodel.AlertmanagerConfig}
+// @Success 200 {object} http.OcsAgentResponse{data=external.AlertmanagerConfig}
 // @Failure 500 {object} http.OcsAgentResponse
 // @Router /api/v1/system/externals/alertmanager [get]
 func GetAlertmanagerConfig(c *gin.Context) {

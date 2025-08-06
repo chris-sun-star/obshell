@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	PROMETHEUS_CONFIG_KEY = "prometheus_config"
+	PROMETHEUS_CONFIG_KEY   = "prometheus_config"
 	ALERTMANAGER_CONFIG_KEY = "alertmanager_config"
 )
 
@@ -43,7 +43,7 @@ type ExternalRepositoryImpl struct {
 }
 
 func NewExternalRepository() (*ExternalRepositoryImpl, error) {
-	db, err := obdb.GetOceanbaseInstance()
+	db, err := obdb.GetOcsInstance()
 	if err != nil {
 		return nil, errors.Wrap(err, "get oceanbase instance failed")
 	}

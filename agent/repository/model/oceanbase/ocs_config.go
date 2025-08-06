@@ -19,10 +19,10 @@ package oceanbase
 import "time"
 
 type OcsConfig struct {
-	Name      string    `gorm:"primaryKey;not null;type:varchar(128)"`
-	Value     string    `gorm:"not null;type:text"`
-	GmtModify time.Time `gorm:"autoUpdateTime"`
-	Info      string
+	Name        string    `gorm:"primaryKey;not null;type:varchar(128)"`
+	Value       string    `gorm:"not null;type:text"`
+	GmtModified time.Time `gorm:"autoUpdateTime"`
+	Info        string
 }
 
 func (OcsConfig) TableName() string {
