@@ -19,10 +19,10 @@ package repository
 import (
 	"encoding/json"
 
-	"github.com/oceanbase/obshell/agent/config"
 	"github.com/oceanbase/obshell/agent/errors"
-	"github.com/oceanbase/obshell/agent/repository/db/sqlite"
-	model "github.com/oceanbase/obshell/agent/repository/model/sqlite"
+	"github.com/oceanbase/obshell/agent/model/external"
+	obdb "github.com/oceanbase/obshell/agent/repository/db/oceanbase"
+	obmodel "github.com/oceanbase/obshell/agent/repository/model/oceanbase"
 	gorm "gorm.io/gorm"
 )
 
@@ -32,10 +32,10 @@ const (
 )
 
 type ExternalRepository interface {
-	SavePrometheusConfig(cfg *config.PrometheusConfig) error
-	GetPrometheusConfig() (*config.PrometheusConfig, error)
-	SaveAlertmanagerConfig(cfg *config.AlertmanagerConfig) error
-	GetAlertmanagerConfig() (*config.AlertmanagerConfig, error)
+	SavePrometheusConfig(cfg *external.PrometheusConfig) error
+	GetPrometheusConfig() (*external.PrometheusConfig, error)
+	SaveAlertmanagerConfig(cfg *external.AlertmanagerConfig) error
+	GetAlertmanagerConfig() (*external.AlertmanagerConfig, error)
 }
 
 type ExternalRepositoryImpl struct {
@@ -43,15 +43,15 @@ type ExternalRepositoryImpl struct {
 }
 
 func NewExternalRepository() (*ExternalRepositoryImpl, error) {
-	db, err := sqlite.GetSqliteInstance()
+	db, err := obdb.GetOceanbaseInstance()
 	if err != nil {
-		return nil, errors.Wrap(err, "get sqlite instance failed")
+		return nil, errors.Wrap(err, "get oceanbase instance failed")
 	}
 	return &ExternalRepositoryImpl{db: db}, nil
 }
 
-func (r *ExternalRepositoryImpl) SaveObConfig(name, value, info string) error {
-	cfg := model.ObConfig{
+func (r *ExternalRepositoryImpl) SaveOcsConfig(name, value, info string) error {
+	cfg := obmodel.OcsConfig{
 		Name:  name,
 		Value: value,
 		Info:  info,
@@ -59,60 +59,60 @@ func (r *ExternalRepositoryImpl) SaveObConfig(name, value, info string) error {
 	return r.db.Save(&cfg).Error
 }
 
-func (r *ExternalRepositoryImpl) GetObConfig(name string) (*model.ObConfig, error) {
-	var cfg model.ObConfig
+func (r *ExternalRepositoryImpl) GetOcsConfig(name string) (*obmodel.OcsConfig, error) {
+	var cfg obmodel.OcsConfig
 	err := r.db.Where("name = ?", name).First(&cfg).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, errors.Wrap(err, "get ob config failed")
+		return nil, errors.Wrap(err, "get ocs config failed")
 	}
 	return &cfg, nil
 }
 
-func (r *ExternalRepositoryImpl) SavePrometheusConfig(cfg *config.PrometheusConfig) error {
+func (r *ExternalRepositoryImpl) SavePrometheusConfig(cfg *external.PrometheusConfig) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, errors.ErrJsonMarshal.Code)
 	}
-	return r.SaveObConfig(PROMETHEUS_CONFIG_KEY, string(data), "Prometheus configuration")
+	return r.SaveOcsConfig(PROMETHEUS_CONFIG_KEY, string(data), "Prometheus configuration")
 }
 
-func (r *ExternalRepositoryImpl) GetPrometheusConfig() (*config.PrometheusConfig, error) {
-	obConfig, err := r.GetObConfig(PROMETHEUS_CONFIG_KEY)
+func (r *ExternalRepositoryImpl) GetPrometheusConfig() (*external.PrometheusConfig, error) {
+	ocsConfig, err := r.GetOcsConfig(PROMETHEUS_CONFIG_KEY)
 	if err != nil {
 		return nil, err
 	}
-	if obConfig == nil {
+	if ocsConfig == nil {
 		return nil, nil
 	}
-	var cfg config.PrometheusConfig
-	err = json.Unmarshal([]byte(obConfig.Value), &cfg)
+	var cfg external.PrometheusConfig
+	err = json.Unmarshal([]byte(ocsConfig.Value), &cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, errors.ErrJsonUnmarshal.Code)
 	}
 	return &cfg, nil
 }
 
-func (r *ExternalRepositoryImpl) SaveAlertmanagerConfig(cfg *config.AlertmanagerConfig) error {
+func (r *ExternalRepositoryImpl) SaveAlertmanagerConfig(cfg *external.AlertmanagerConfig) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, errors.ErrJsonMarshal.Code)
 	}
-	return r.SaveObConfig(ALERTMANAGER_CONFIG_KEY, string(data), "Alertmanager configuration")
+	return r.SaveOcsConfig(ALERTMANAGER_CONFIG_KEY, string(data), "Alertmanager configuration")
 }
 
-func (r *ExternalRepositoryImpl) GetAlertmanagerConfig() (*config.AlertmanagerConfig, error) {
-	obConfig, err := r.GetObConfig(ALERTMANAGER_CONFIG_KEY)
+func (r *ExternalRepositoryImpl) GetAlertmanagerConfig() (*external.AlertmanagerConfig, error) {
+	ocsConfig, err := r.GetOcsConfig(ALERTMANAGER_CONFIG_KEY)
 	if err != nil {
 		return nil, err
 	}
-	if obConfig == nil {
+	if ocsConfig == nil {
 		return nil, nil
 	}
-	var cfg config.AlertmanagerConfig
-	err = json.Unmarshal([]byte(obConfig.Value), &cfg)
+	var cfg external.AlertmanagerConfig
+	err = json.Unmarshal([]byte(ocsConfig.Value), &cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, errors.ErrJsonUnmarshal.Code)
 	}

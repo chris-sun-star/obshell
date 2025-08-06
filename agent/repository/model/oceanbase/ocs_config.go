@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package config
+package oceanbase
 
-type PrometheusConfig struct {
-	Address  string `json:"address"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+import "time"
+
+type OcsConfig struct {
+	Name      string    `gorm:"primaryKey;not null;type:varchar(128)"`
+	Value     string    `gorm:"not null;type:text"`
+	GmtModify time.Time `gorm:"autoUpdateTime"`
+	Info      string
 }
 
-type AlertmanagerConfig struct {
-	Address  string `json:"address"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+func (OcsConfig) TableName() string {
+	return "ocs_config"
 }
