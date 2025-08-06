@@ -85,7 +85,7 @@ func filterRule(rule *rule.RuleResponse, filter *rule.RuleFilter) bool {
 			matched = matched && (rule.InstanceType == filter.InstanceType)
 		}
 		if filter.Severity != "" {
-			matched = matched && (string(rule.Severity) == filter.Severity)
+			matched = matched && (rule.Severity == filter.Severity)
 		}
 	}
 	return matched
