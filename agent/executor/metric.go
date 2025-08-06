@@ -29,6 +29,7 @@ import (
 	"github.com/oceanbase/obshell/agent/bindata"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
+	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/common"
 	model "github.com/oceanbase/obshell/model/metric"
 	"github.com/sirupsen/logrus"
@@ -172,6 +173,24 @@ func extractMetricData(name string, resp *model.PrometheusQueryRangeResponse) []
 
 func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 	client := resty.New().SetTimeout(time.Duration(DEFAULT_TIMEOUT * time.Second))
+	repo, err := NewExternalRepository()
+	if err != nil {
+		logrus.WithError(err).Error("get external repository failed")
+		return nil
+	}
+	cfg, err := repo.GetPrometheusConfig()
+	if err != nil {
+		logrus.WithError(err).Error("get prometheus config failed")
+		return nil
+	}
+	if cfg == nil {
+		logrus.Error("prometheus config not found")
+		return nil
+	}
+	if cfg.User != "" {
+		client.SetBasicAuth(cfg.User, cfg.Password)
+	}
+
 	metricDatas := make([]model.MetricData, 0, len(queryParam.Metrics))
 	wg := sync.WaitGroup{}
 	metricDataCh := make(chan []model.MetricData, len(queryParam.Metrics))
@@ -184,12 +203,6 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 				expr := replaceQueryVariables(exprTemplate, queryParam.Labels, queryParam.GroupLabels, queryParam.QueryRange.Step)
 				logrus.Infof("Query with expr: %s, range: %v", expr, queryParam.QueryRange)
 				queryRangeResp := &model.PrometheusQueryRangeResponse{}
-				var addr string
-				if queryParam.Server != nil {
-					addr = fmt.Sprintf("http://%s:%d", queryParam.Server.Host, queryParam.Server.Port)
-				} else {
-					addr = PROMETHEUS_ADDRESS
-				}
 				resp, err := client.R().SetQueryParams(map[string]string{
 					"start": strconv.FormatFloat(queryParam.QueryRange.StartTimestamp, 'f', 3, 64),
 					"end":   strconv.FormatFloat(queryParam.QueryRange.EndTimestamp, 'f', 3, 64),
@@ -197,7 +210,7 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 					"query": expr,
 				}).SetHeader("content-type", "application/json").
 					SetResult(queryRangeResp).
-					Get(fmt.Sprintf("%s%s", addr, METRIC_RANGE_QUERY_URL))
+					Get(fmt.Sprintf("%s%s", cfg.URL, METRIC_RANGE_QUERY_URL))
 				if err != nil {
 					logrus.Errorf("Query expression expr got error: %v", err)
 				} else if resp.StatusCode() == http.StatusOK {

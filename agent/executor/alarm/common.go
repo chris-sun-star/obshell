@@ -18,41 +18,75 @@ import (
 	"sync"
 	"time"
 
-	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
-	metricconst "github.com/oceanbase/obshell/agent/executor/metric/constant"
-	"github.com/pkg/errors"
-
 	"github.com/go-resty/resty/v2"
+	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	metricconst "github.com/oceanbase/obshell/agent/executor/metric/constant"
+	"github.com/oceanbase/obshell/agent/repository"
+	"github.com/pkg/errors"
 )
 
-var restyClient *resty.Client
-var restyOnce sync.Once
+func newClient(url, user, password string) (*resty.Client, error) {
+	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(url)
+	if user != "" {
+		client.SetBasicAuth(user, password)
+	}
+	return client, nil
+}
 
-func getClient() *resty.Client {
-	restyOnce.Do(func() {
-		restyClient = resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second))
-	})
-	return restyClient
+func newAlertmanagerClient(url, user, password string) (*resty.Client, error) {
+	return newClient(url, user, password)
+}
+
+func newPrometheusClient(url, user, password string) (*resty.Client, error) {
+	return newClient(url, user, password)
 }
 
 func reloadAlertmanager() error {
-	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second))
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.AlertmanagerReloadUrl))
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return errors.Wrap(err, "Reload alertmanager failed")
+		return errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetAlertmanagerConfig()
+	if err != nil {
+		return errors.Wrap(err, "get alertmanager config failed")
+	}
+	if cfg == nil {
+		return errors.New("alertmanager config not found")
+	}
+	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return errors.Wrap(err, "new alertmanager client failed")
+	}
+	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.AlertmanagerReloadUrl)
+	if err != nil {
+		return errors.Wrap(err, "reload alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Errorf( "Reload alertmanager got unexpected status: %d", resp.StatusCode())
+		return errors.Errorf("reload alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	return nil
 }
 
 func reloadPrometheus() error {
-	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second))
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(fmt.Sprintf("%s%s", metricconst.PrometheusAddress, alarmconstant.PrometheusReloadUrl))
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return errors.Wrap(err, "Reload prometheus failed")
+		return errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetPrometheusConfig()
+	if err != nil {
+		return errors.Wrap(err, "get prometheus config failed")
+	}
+	if cfg == nil {
+		return errors.New("prometheus config not found")
+	}
+	client, err := newPrometheusClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return errors.Wrap(err, "new prometheus client failed")
+	}
+	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.PrometheusReloadUrl)
+	if err != nil {
+		return errors.Wrap(err, "reload prometheus failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Errorf( "Reload prometheus got unexpected status: %d", resp.StatusCode())
+		return errors.Errorf("reload prometheus got unexpected status: %d", resp.StatusCode())
 	}
 	return nil
 }

@@ -19,27 +19,48 @@ import (
 	"strings"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/alert"
 	"github.com/pkg/errors"
 
 	ammodels "github.com/prometheus/alertmanager/api/v2/models"
+	"github.com/prometheus/common/config"
 	logger "github.com/sirupsen/logrus"
 )
 
 func ListAlerts(ctx context.Context, filter *alert.AlertFilter) ([]alert.Alert, error) {
 	gettableAlerts := make(ammodels.GettableAlerts, 0)
+
+	repo, err := repository.NewExternalRepository()
+	if err != nil {
+		return nil, errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetAlertmanagerConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "get alertmanager config failed")
+	}
+	if cfg == nil {
+		return nil, errors.New("alertmanager config not found")
+	}
+
+	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return nil, errors.Wrap(err, "new alertmanager client failed")
+	}
+
 	// TODO is it possible to request without parameters
-	resp, err := getClient().R().SetContext(ctx).SetQueryParams(map[string]string{
+	resp, err := client.R().SetContext(ctx).SetQueryParams(map[string]string{
 		"active":      "true",
 		"silenced":    "true",
 		"inhibited":   "true",
 		"unprocessed": "true",
 		"receiver":    "",
-	}).SetHeader("content-type", "application/json").SetResult(&gettableAlerts).Get(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.AlertUrl))
+	}).SetHeader("content-type", "application/json").SetResult(&gettableAlerts).Get(alarmconstant.AlertUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "Query alerts from alertmanager")
+		return nil, errors.Wrap(err, "query alerts from alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("Query alerts from alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("query alerts from alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	filteredAlerts := make([]alert.Alert, 0)
 	for _, gettableAlert := range gettableAlerts {

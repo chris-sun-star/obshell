@@ -20,6 +20,8 @@ import (
 	"time"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/silence"
 	"github.com/oceanbase/obshell/model/oceanbase"
 	"github.com/pkg/errors"
@@ -31,22 +33,52 @@ import (
 )
 
 func DeleteSilencer(ctx context.Context, id string) error {
-	resp, err := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json").Delete(fmt.Sprintf("%s%s/%s", alarmconstant.AlertManagerAddress, alarmconstant.SingleSilencerUrl, id))
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return errors.Wrap(err, "Delete silencer from alertmanager")
+		return errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetAlertmanagerConfig()
+	if err != nil {
+		return errors.Wrap(err, "get alertmanager config failed")
+	}
+	if cfg == nil {
+		return errors.New("alertmanager config not found")
+	}
+	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return errors.Wrap(err, "new alertmanager client failed")
+	}
+	resp, err := client.R().SetContext(ctx).SetHeader("content-type", "application/json").Delete(fmt.Sprintf("%s/%s", alarmconstant.SingleSilencerUrl, id))
+	if err != nil {
+		return errors.Wrap(err, "delete silencer from alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Errorf("Delete silencer got unexpected status: %d", resp.StatusCode())
+		return errors.Errorf("delete silencer got unexpected status: %d", resp.StatusCode())
 	}
 	return nil
 }
 
 func GetSilencer(ctx context.Context, id string) (*silence.SilencerResponse, error) {
 	gettableSilencer := ammodels.GettableSilence{}
-	resp, err := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json").SetResult(&gettableSilencer).Get(fmt.Sprintf("%s%s/%s", alarmconstant.AlertManagerAddress, alarmconstant.SingleSilencerUrl, id))
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return nil, errors.Wrap(err, "Get silencer from alertmanager")
+		return nil, errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetAlertmanagerConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "get alertmanager config failed")
+	}
+	if cfg == nil {
+		return nil, errors.New("alertmanager config not found")
+	}
+	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return nil, errors.Wrap(err, "new alertmanager client failed")
+	}
+	resp, err := client.R().SetContext(ctx).SetHeader("content-type", "application/json").SetResult(&gettableSilencer).Get(fmt.Sprintf("%s/%s", alarmconstant.SingleSilencerUrl, id))
+	if err != nil {
+		return nil, errors.Wrap(err, "get silencer from alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("Get silencer got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("get silencer got unexpected status: %d", resp.StatusCode())
 	}
 	return silence.NewSilencerResponse(&gettableSilencer), nil
 }
@@ -150,11 +182,26 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 		Silence: silencer,
 	}
 	okBody := amsilence.PostSilencesOKBody{}
-	resp, err := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json").SetBody(postableSilence).SetResult(&okBody).Post(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.MultiSilencerUrl))
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return nil, errors.Wrap(err, "Create silencer in alertmanager")
+		return nil, errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetAlertmanagerConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "get alertmanager config failed")
+	}
+	if cfg == nil {
+		return nil, errors.New("alertmanager config not found")
+	}
+	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return nil, errors.Wrap(err, "new alertmanager client failed")
+	}
+	resp, err := client.R().SetContext(ctx).SetHeader("content-type", "application/json").SetBody(postableSilence).SetResult(&okBody).Post(alarmconstant.MultiSilencerUrl)
+	if err != nil {
+		return nil, errors.Wrap(err, "create silencer in alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("Create silencer in alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("create silencer in alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	state := string(silence.StateActive)
 	gettableSilencer := ammodels.GettableSilence{
@@ -171,12 +218,27 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 
 func ListSilencers(ctx context.Context, filter *silence.SilencerFilter) ([]silence.SilencerResponse, error) {
 	gettableSilencers := make(ammodels.GettableSilences, 0)
-	req := getClient().R().SetContext(ctx).SetHeader("content-type", "application/json")
-	resp, err := req.SetResult(&gettableSilencers).Get(fmt.Sprintf("%s%s", alarmconstant.AlertManagerAddress, alarmconstant.MultiSilencerUrl))
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return nil, errors.Wrap(err, "Query silencers from alertmanager")
+		return nil, errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetAlertmanagerConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "get alertmanager config failed")
+	}
+	if cfg == nil {
+		return nil, errors.New("alertmanager config not found")
+	}
+	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	if err != nil {
+		return nil, errors.Wrap(err, "new alertmanager client failed")
+	}
+	req := client.R().SetContext(ctx).SetHeader("content-type", "application/json")
+	resp, err := req.SetResult(&gettableSilencers).Get(alarmconstant.MultiSilencerUrl)
+	if err != nil {
+		return nil, errors.Wrap(err, "query silencers from alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("Query silencers from alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Errorf("query silencers from alertmanager got unexpected status: %d", resp.StatusCode())
 	}
 	logger.Infof("resp: %v", resp)
 	logger.Infof("silencers: %v", gettableSilencers)
