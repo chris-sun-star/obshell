@@ -55,12 +55,12 @@ const UNIX_CONNECT UNIX_CONNECT_TYPE = "unix_conn"
 const (
 	statusURI = constant.URI_API_V1 + constant.URI_STATUS
 
-	localRouteKey = "localRoute"
-	apiRouteKey   = "apiRoute"
+	localRouteKey = constant.LOCAL_ROUTE_KEY
+	apiRouteKey   = constant.API_ROUTE_KEY
 
-	originalBody = "ORIGINAL_BODY"
+	originalBody = constant.ORIGINAL_BODY
 
-	ACCEPT_LANGUAGE = "Accept-Language"
+	ACCEPT_LANGUAGE = constant.ACCEPT_LANGUAGE
 )
 
 var (

@@ -73,6 +73,8 @@ var (
 	ErrCommonUnexpected                 = NewErrorCode("Common.Unexpected", unexpected, "err.common.unexpected")                              // "unexpected error: %s"
 	ErrCommonUnauthorized               = NewErrorCode("Common.Unauthorized", unauthorized, "err.common.unauthorized", 10008)                 // "unauthorized"
 	ErrCommonInvalidTimeDuration        = NewErrorCode("Common.InvalidTimeDuration", illegalArgument, "err.common.invalid.time.duration")     // "time duration '%s' is invalid: %s"
+	ErrJsonMarshal                      = NewErrorCode("Common.JsonMarshal", unexpected, "err.common.json.marshal")     // "json marshal failed: %s"
+	ErrJsonUnmarshal                    = NewErrorCode("Common.JsonUnmarshal", unexpected, "err.common.json.unmarshal") // "json unmarshal failed: %s"
 	// Log
 	ErrLogWriteExceedMaxSize          = NewErrorCode("Log.WriteExceedMaxSize", unexpected, "err.log.write.exceed.max.size")                   // "write length %d exceeds maximum file size %d"
 	ErrLogFileNamePrefixMismatched    = NewErrorCode("Log.FileNamePrefixMismatched", unexpected, "err.log.file.name.prefix.mismatched")       // "file name '%s' prefix mismatched"

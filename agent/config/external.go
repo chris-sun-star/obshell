@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package constant
+package config
 
-const (
-	SCOPE_CLUSTER          = "OBCLUSTER"
-	SCOPE_TENANT           = "OBTENANT"
-	SCOPE_CLUSTER_OVERVIEW = "OBCLUSTER_OVERVIEW"
-	SCOPE_TENANT_OVERVIEW  = "OBTENANT_OVERVIEW"
-	SCOPE_OBPROXY          = "OBPROXY"
+type PrometheusConfig struct {
+	Address  string `json:"address"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
-	LANGUAGE_EN_US = "en-US"
-	LANGUAGE_ZH_CN = "zh-CN"
-
-	LOCAL_ROUTE_KEY = "localRoute"
-	API_ROUTE_KEY   = "apiRoute"
-	ORIGINAL_BODY   = "ORIGINAL_BODY"
-	ACCEPT_LANGUAGE = "Accept-Language"
-)
+type AlertmanagerConfig struct {
+	Address  string `json:"address"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}

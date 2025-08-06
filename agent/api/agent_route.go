@@ -113,6 +113,9 @@ func InitOcsAgentRoutes(s *http2.State, r *gin.Engine, isLocalRoute bool) {
 	InitMetricRoutes(v1, isLocalRoute)
 	InitAlarmRoutes(v1, isLocalRoute)
 
+	system := v1.Group(constant.URI_SYSTEM_GROUP)
+	InitExternalRoutes(system, isLocalRoute)
+
 	// ob routes
 	ob.POST(constant.URI_INIT, obInitHandler)
 	ob.POST(constant.URI_STOP, obStopHandler)

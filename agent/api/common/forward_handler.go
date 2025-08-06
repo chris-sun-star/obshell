@@ -67,7 +67,7 @@ func autoForward(c *gin.Context) {
 	// Repackage the request header
 	var headers map[string]string
 	var body interface{}
-	if originalBody, exist := c.Get(originalBody); exist {
+	if originalBody, exist := c.Get(constant.ORIGINAL_BODY); exist {
 		body = originalBody
 	}
 

@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package constant
+package api
 
-const (
-	SCOPE_CLUSTER          = "OBCLUSTER"
-	SCOPE_TENANT           = "OBTENANT"
-	SCOPE_CLUSTER_OVERVIEW = "OBCLUSTER_OVERVIEW"
-	SCOPE_TENANT_OVERVIEW  = "OBTENANT_OVERVIEW"
-	SCOPE_OBPROXY          = "OBPROXY"
+import (
+	"github.com/gin-gonic/gin"
 
-	LANGUAGE_EN_US = "en-US"
-	LANGUAGE_ZH_CN = "zh-CN"
-
-	LOCAL_ROUTE_KEY = "localRoute"
-	API_ROUTE_KEY   = "apiRoute"
-	ORIGINAL_BODY   = "ORIGINAL_BODY"
-	ACCEPT_LANGUAGE = "Accept-Language"
+	"github.com/oceanbase/obshell/agent/constant"
 )
+
+func InitExternalRoutes(r *gin.RouterGroup, isLocalRoute bool) {
+	external := r.Group(constant.URI_EXTERNAL_GROUP)
+
+	if !isLocalRoute {
+		// external.Use(common.Verify())
+	}
+
+	external.PUT(constant.URI_PROMETHEUS, SetPrometheusConfig)
+	external.GET(constant.URI_PROMETHEUS, GetPrometheusConfig)
+	external.PUT(constant.URI_ALERTMANAGER, SetAlertmanagerConfig)
+	external.GET(constant.URI_ALERTMANAGER, GetAlertmanagerConfig)
+}

@@ -36,6 +36,10 @@ const (
 	URI_RECYCLEBIN_GROUP = "/recyclebin"
 	URI_OBPROXY_GROUP    = "/obproxy"
 	URI_METRIC_GROUP     = "/metrics"
+	URI_SYSTEM_GROUP     = "/system"
+	URI_EXTERNAL_GROUP   = "/externals"
+	URI_PROMETHEUS       = "/prometheus"
+	URI_ALERTMANAGER     = "/alertmanager"
 
 	URI_INFO      = "/info"
 	URI_TIME      = "/time"
