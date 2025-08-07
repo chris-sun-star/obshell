@@ -27,6 +27,7 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"syscall"
@@ -354,7 +355,7 @@ func PostHandlers(excludeRoutes ...string) func(*gin.Context) {
 
 // Recovery is a utility function meant to be used with the Gin middleware for panic recovery.
 func Recovery(c *gin.Context, err interface{}) {
-	log.WithContext(NewContextWithTraceId(c)).Errorf("request context %+v, err:%+v", c, err)
+	log.WithContext(NewContextWithTraceId(c)).Errorf("request context %+v, err:%+v, stack:%s", c, err, debug.Stack())
 	c.JSON(recoveryResponse.Status, recoveryResponse)
 }
 
