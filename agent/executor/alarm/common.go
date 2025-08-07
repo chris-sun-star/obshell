@@ -58,6 +58,25 @@ func getAlertmanagerClientFromConfig() (*resty.Client, error) {
 	return client, nil
 }
 
+func getPrometheusClientFromConfig() (*resty.Client, error) {
+	repo, err := repository.NewExternalRepository()
+	if err != nil {
+		return nil, errors.Wrap(err, "get external repository failed")
+	}
+	cfg, err := repo.GetPrometheusConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "get prometheus config failed")
+	}
+	if cfg == nil {
+		return nil, errors.New("prometheus config not found")
+	}
+	client, err := newPrometheusClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	if err != nil {
+		return nil, errors.Wrap(err, "new prometheus client failed")
+	}
+	return client, nil
+}
+
 func reloadAlertmanager() error {
 	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
@@ -73,18 +92,7 @@ func reloadAlertmanager() error {
 }
 
 func reloadPrometheus() error {
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetPrometheusConfig()
-	if err != nil {
-		return errors.Wrap(err, "get prometheus config failed")
-	}
-	if cfg == nil {
-		return errors.New("prometheus config not found")
-	}
-	client, err := newPrometheusClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := getPrometheusClientFromConfig()
 	if err != nil {
 		return errors.Wrap(err, "new prometheus client failed")
 	}
