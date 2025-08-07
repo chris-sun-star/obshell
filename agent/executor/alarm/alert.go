@@ -44,7 +44,7 @@ func ListAlerts(ctx context.Context, filter *alert.AlertFilter) ([]alert.Alert, 
 		return nil, errors.New("alertmanager config not found")
 	}
 
-	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}

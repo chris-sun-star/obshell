@@ -56,7 +56,7 @@ func ListRules(ctx context.Context, filter *rule.RuleFilter) ([]rule.RuleRespons
 	if cfg == nil {
 		return nil, errors.New("prometheus config not found")
 	}
-	client, err := newPrometheusClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newPrometheusClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "new prometheus client failed")
 	}

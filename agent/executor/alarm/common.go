@@ -13,14 +13,10 @@ See the Mulan PSL v2 for more details.
 package alarm
 
 import (
-	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
-	metricconst "github.com/oceanbase/obshell/agent/executor/metric/constant"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/pkg/errors"
 )
@@ -78,7 +74,7 @@ func reloadPrometheus() error {
 	if cfg == nil {
 		return errors.New("prometheus config not found")
 	}
-	client, err := newPrometheusClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newPrometheusClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return errors.Wrap(err, "new prometheus client failed")
 	}

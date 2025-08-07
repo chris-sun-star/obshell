@@ -37,7 +37,6 @@ import (
 )
 
 const (
-	PROMETHEUS_ADDRESS      = "http://127.0.0.1:9090"
 	METRIC_RANGE_QUERY_URL  = "/api/v1/query_range"
 	DEFAULT_TIMEOUT         = 30
 	METRIC_CONFIG_FILE_ENUS = "agent/assets/metric/metrics-en_US.yaml"
@@ -173,7 +172,7 @@ func extractMetricData(name string, resp *model.PrometheusQueryRangeResponse) []
 
 func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 	client := resty.New().SetTimeout(time.Duration(DEFAULT_TIMEOUT * time.Second))
-	repo, err := NewExternalRepository()
+	repo, err := repository.NewExternalRepository()
 	if err != nil {
 		logrus.WithError(err).Error("get external repository failed")
 		return nil
@@ -187,8 +186,8 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 		logrus.Error("prometheus config not found")
 		return nil
 	}
-	if cfg.User != "" {
-		client.SetBasicAuth(cfg.User, cfg.Password)
+	if cfg.Auth != nil && cfg.Auth.Username != "" {
+		client.SetBasicAuth(cfg.Auth.Username, cfg.Auth.Password)
 	}
 
 	metricDatas := make([]model.MetricData, 0, len(queryParam.Metrics))
@@ -210,7 +209,7 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 					"query": expr,
 				}).SetHeader("content-type", "application/json").
 					SetResult(queryRangeResp).
-					Get(fmt.Sprintf("%s%s", cfg.URL, METRIC_RANGE_QUERY_URL))
+					Get(fmt.Sprintf("%s%s", cfg.Address, METRIC_RANGE_QUERY_URL))
 				if err != nil {
 					logrus.Errorf("Query expression expr got error: %v", err)
 				} else if resp.StatusCode() == http.StatusOK {

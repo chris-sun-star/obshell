@@ -44,7 +44,7 @@ func DeleteSilencer(ctx context.Context, id string) error {
 	if cfg == nil {
 		return errors.New("alertmanager config not found")
 	}
-	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -70,7 +70,7 @@ func GetSilencer(ctx context.Context, id string) (*silence.SilencerResponse, err
 	if cfg == nil {
 		return nil, errors.New("alertmanager config not found")
 	}
-	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -193,7 +193,7 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 	if cfg == nil {
 		return nil, errors.New("alertmanager config not found")
 	}
-	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -229,7 +229,7 @@ func ListSilencers(ctx context.Context, filter *silence.SilencerFilter) ([]silen
 	if cfg == nil {
 		return nil, errors.New("alertmanager config not found")
 	}
-	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
