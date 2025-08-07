@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package executor
+package metric
 
 import (
 	"fmt"

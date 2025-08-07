@@ -21,7 +21,7 @@ import (
 	"github.com/oceanbase/obshell/agent/api/common"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
-	"github.com/oceanbase/obshell/agent/executor"
+	"github.com/oceanbase/obshell/agent/executor/metric"
 	"github.com/oceanbase/obshell/model/metric"
 	"github.com/sirupsen/logrus"
 )
@@ -82,7 +82,7 @@ func QueryMetrics(c *gin.Context) {
 		return
 	}
 	logrus.Infof("Query metric data with param: %+v", queryParam)
-	metricDatas := executor.QueryMetricData(queryParam)
+	metricDatas := metric.QueryMetricData(queryParam)
 	logrus.Debugf("Query metric data: %+v", metricDatas)
 	common.SendResponse(c, metricDatas, nil)
 }
