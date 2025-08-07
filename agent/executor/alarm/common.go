@@ -19,24 +19,25 @@ import (
 	"github.com/go-resty/resty/v2"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	"github.com/oceanbase/obshell/agent/model/external"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/pkg/errors"
 )
 
-func newClient(address, username, password string) (*resty.Client, error) {
+func newClient(address string, auth *external.Auth) (*resty.Client, error) {
 	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(address)
-	if username != "" {
-		client.SetBasicAuth(username, password)
+	if auth != nil && auth.Username != "" {
+		client.SetBasicAuth(auth.Username, auth.Password)
 	}
 	return client, nil
 }
 
-func newAlertmanagerClient(address, username, password string) (*resty.Client, error) {
-	return newClient(address, username, password)
+func newAlertmanagerClient(cfg *external.AlertmanagerConfig) (*resty.Client, error) {
+	return newClient(cfg.Address, cfg.Auth)
 }
 
-func newPrometheusClient(address, username, password string) (*resty.Client, error) {
-	return newClient(address, username, password)
+func newPrometheusClient(cfg *external.PrometheusConfig) (*resty.Client, error) {
+	return newClient(cfg.Address, cfg.Auth)
 }
 
 func getAlertmanagerClientFromConfig() (*resty.Client, error) {
@@ -51,7 +52,7 @@ func getAlertmanagerClientFromConfig() (*resty.Client, error) {
 	if cfg == nil {
 		return nil, errors.New("alertmanager config not found")
 	}
-	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := newAlertmanagerClient(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -70,7 +71,7 @@ func getPrometheusClientFromConfig() (*resty.Client, error) {
 	if cfg == nil {
 		return nil, errors.New("prometheus config not found")
 	}
-	client, err := newPrometheusClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := newPrometheusClient(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "new prometheus client failed")
 	}
