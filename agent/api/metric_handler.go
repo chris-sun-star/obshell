@@ -21,7 +21,7 @@ import (
 	"github.com/oceanbase/obshell/agent/api/common"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
-	"github.com/oceanbase/obshell/agent/executor/metric"
+	metricexecutor "github.com/oceanbase/obshell/agent/executor/metric"
 	"github.com/oceanbase/obshell/model/metric"
 	"github.com/sirupsen/logrus"
 )
@@ -52,7 +52,7 @@ func ListMetricMetas(c *gin.Context) {
 		common.SendResponse(c, nil, errors.Occur(errors.ErrCommonBadRequest, "invalid scope"))
 		return
 	}
-	metricClasses, err := executor.ListMetricClasses(scope, language)
+	metricClasses, err := metricexecutor.ListMetricClasses(scope, language)
 	if err != nil {
 		common.SendResponse(c, nil, err)
 		return
@@ -82,7 +82,7 @@ func QueryMetrics(c *gin.Context) {
 		return
 	}
 	logrus.Infof("Query metric data with param: %+v", queryParam)
-	metricDatas := metric.QueryMetricData(queryParam)
+	metricDatas := metricexecutor.QueryMetricData(queryParam)
 	logrus.Debugf("Query metric data: %+v", metricDatas)
 	common.SendResponse(c, metricDatas, nil)
 }
