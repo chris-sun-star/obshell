@@ -21,20 +21,20 @@ import (
 	"github.com/pkg/errors"
 )
 
-func newClient(url, user, password string) (*resty.Client, error) {
-	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(url)
-	if user != "" {
-		client.SetBasicAuth(user, password)
+func newClient(address, username, password string) (*resty.Client, error) {
+	client := resty.New().SetTimeout(time.Duration(constant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(address)
+	if username != "" {
+		client.SetBasicAuth(username, password)
 	}
 	return client, nil
 }
 
-func newAlertmanagerClient(url, user, password string) (*resty.Client, error) {
-	return newClient(url, user, password)
+func newAlertmanagerClient(address, username, password string) (*resty.Client, error) {
+	return newClient(address, username, password)
 }
 
-func newPrometheusClient(url, user, password string) (*resty.Client, error) {
-	return newClient(url, user, password)
+func newPrometheusClient(address, username, password string) (*resty.Client, error) {
+	return newClient(address, username, password)
 }
 
 func reloadAlertmanager() error {
@@ -49,11 +49,11 @@ func reloadAlertmanager() error {
 	if cfg == nil {
 		return errors.New("alertmanager config not found")
 	}
-	client, err := newAlertmanagerClient(cfg.URL, cfg.User, cfg.Password)
+	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
 	if err != nil {
 		return errors.Wrap(err, "new alertmanager client failed")
 	}
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.AlertmanagerReloadUrl)
+	resp, err := client.R().SetHeader("content-type", "application/json").Post(constant.AlertmanagerReloadUrl)
 	if err != nil {
 		return errors.Wrap(err, "reload alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
@@ -78,7 +78,7 @@ func reloadPrometheus() error {
 	if err != nil {
 		return errors.Wrap(err, "new prometheus client failed")
 	}
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.PrometheusReloadUrl)
+	resp, err := client.R().SetHeader("content-type", "application/json").Post(constant.PrometheusReloadUrl)
 	if err != nil {
 		return errors.Wrap(err, "reload prometheus failed")
 	} else if resp.StatusCode() != http.StatusOK {

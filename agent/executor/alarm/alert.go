@@ -14,18 +14,15 @@ package alarm
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
-	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/alert"
 	"github.com/pkg/errors"
 
 	ammodels "github.com/prometheus/alertmanager/api/v2/models"
-	"github.com/prometheus/common/config"
 	logger "github.com/sirupsen/logrus"
 )
 

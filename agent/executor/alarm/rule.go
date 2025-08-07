@@ -15,12 +15,9 @@ package alarm
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
-	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
-	metricconst "github.com/oceanbase/obshell/agent/executor/metric/constant"
 	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/rule"
