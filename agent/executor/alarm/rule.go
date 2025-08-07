@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/rule"
 	"github.com/pkg/errors"

@@ -17,12 +17,14 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
+
+	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/pkg/errors"
 )
 
 func newClient(address, username, password string) (*resty.Client, error) {
-	client := resty.New().SetTimeout(time.Duration(constant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(address)
+	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(address)
 	if username != "" {
 		client.SetBasicAuth(username, password)
 	}
@@ -53,7 +55,7 @@ func reloadAlertmanager() error {
 	if err != nil {
 		return errors.Wrap(err, "new alertmanager client failed")
 	}
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(constant.AlertmanagerReloadUrl)
+	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.AlertmanagerReloadUrl)
 	if err != nil {
 		return errors.Wrap(err, "reload alertmanager failed")
 	} else if resp.StatusCode() != http.StatusOK {
@@ -78,7 +80,7 @@ func reloadPrometheus() error {
 	if err != nil {
 		return errors.Wrap(err, "new prometheus client failed")
 	}
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(constant.PrometheusReloadUrl)
+	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.PrometheusReloadUrl)
 	if err != nil {
 		return errors.Wrap(err, "reload prometheus failed")
 	} else if resp.StatusCode() != http.StatusOK {
