@@ -39,19 +39,27 @@ func newPrometheusClient(address, username, password string) (*resty.Client, err
 	return newClient(address, username, password)
 }
 
-func reloadAlertmanager() error {
+func getAlertmanagerClientFromConfig() (*resty.Client, error) {
 	repo, err := repository.NewExternalRepository()
 	if err != nil {
-		return errors.Wrap(err, "get external repository failed")
+		return nil, errors.Wrap(err, "get external repository failed")
 	}
 	cfg, err := repo.GetAlertmanagerConfig()
 	if err != nil {
-		return errors.Wrap(err, "get alertmanager config failed")
+		return nil, errors.Wrap(err, "get alertmanager config failed")
 	}
 	if cfg == nil {
-		return errors.New("alertmanager config not found")
+		return nil, errors.New("alertmanager config not found")
 	}
 	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	if err != nil {
+		return nil, errors.Wrap(err, "new alertmanager client failed")
+	}
+	return client, nil
+}
+
+func reloadAlertmanager() error {
+	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
 		return errors.Wrap(err, "new alertmanager client failed")
 	}

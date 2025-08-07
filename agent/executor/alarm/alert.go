@@ -29,19 +29,7 @@ import (
 func ListAlerts(ctx context.Context, filter *alert.AlertFilter) ([]alert.Alert, error) {
 	gettableAlerts := make(ammodels.GettableAlerts, 0)
 
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
-	if err != nil {
-		return nil, errors.Wrap(err, "get alertmanager config failed")
-	}
-	if cfg == nil {
-		return nil, errors.New("alertmanager config not found")
-	}
-
-	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}

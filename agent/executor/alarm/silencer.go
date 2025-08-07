@@ -20,7 +20,6 @@ import (
 	"time"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
-	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/silence"
 	"github.com/oceanbase/obshell/model/oceanbase"
 	"github.com/pkg/errors"
@@ -32,18 +31,7 @@ import (
 )
 
 func DeleteSilencer(ctx context.Context, id string) error {
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
-	if err != nil {
-		return errors.Wrap(err, "get alertmanager config failed")
-	}
-	if cfg == nil {
-		return errors.New("alertmanager config not found")
-	}
-	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
 		return errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -58,18 +46,7 @@ func DeleteSilencer(ctx context.Context, id string) error {
 
 func GetSilencer(ctx context.Context, id string) (*silence.SilencerResponse, error) {
 	gettableSilencer := ammodels.GettableSilence{}
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
-	if err != nil {
-		return nil, errors.Wrap(err, "get alertmanager config failed")
-	}
-	if cfg == nil {
-		return nil, errors.New("alertmanager config not found")
-	}
-	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -181,18 +158,7 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 		Silence: silencer,
 	}
 	okBody := amsilence.PostSilencesOKBody{}
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
-	if err != nil {
-		return nil, errors.Wrap(err, "get alertmanager config failed")
-	}
-	if cfg == nil {
-		return nil, errors.New("alertmanager config not found")
-	}
-	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
@@ -217,18 +183,7 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 
 func ListSilencers(ctx context.Context, filter *silence.SilencerFilter) ([]silence.SilencerResponse, error) {
 	gettableSilencers := make(ammodels.GettableSilences, 0)
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
-	if err != nil {
-		return nil, errors.Wrap(err, "get alertmanager config failed")
-	}
-	if cfg == nil {
-		return nil, errors.New("alertmanager config not found")
-	}
-	client, err := newAlertmanagerClient(cfg.Address, cfg.Auth.Username, cfg.Auth.Password)
+	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "new alertmanager client failed")
 	}
