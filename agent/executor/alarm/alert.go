@@ -18,7 +18,6 @@ import (
 	"strings"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
-	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/alert"
 	"github.com/pkg/errors"
 
