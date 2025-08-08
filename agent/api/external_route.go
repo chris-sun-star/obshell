@@ -19,6 +19,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/oceanbase/obshell/agent/api/common"
 	"github.com/oceanbase/obshell/agent/constant"
 )
 
@@ -26,7 +27,7 @@ func InitExternalRoutes(r *gin.RouterGroup, isLocalRoute bool) {
 	external := r.Group(constant.URI_EXTERNAL_GROUP)
 
 	if !isLocalRoute {
-		// external.Use(common.Verify())
+		external.Use(common.Verify())
 	}
 
 	external.PUT(constant.URI_PROMETHEUS, SetPrometheusConfig)
