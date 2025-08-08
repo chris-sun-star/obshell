@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
-	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/alarm/rule"
 	"github.com/pkg/errors"
 
@@ -46,17 +45,6 @@ func GetRule(ctx context.Context, name string) (*rule.RuleResponse, error) {
 
 func ListRules(ctx context.Context, filter *rule.RuleFilter) ([]rule.RuleResponse, error) {
 	promRuleResponse := &rule.PromRuleResponse{}
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetPrometheusConfig()
-	if err != nil {
-		return nil, errors.Wrap(err, "get prometheus config failed")
-	}
-	if cfg == nil {
-		return nil, errors.New("prometheus config not found")
-	}
 	client, err := getPrometheusClientFromConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "new prometheus client failed")
