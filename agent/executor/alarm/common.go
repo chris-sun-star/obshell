@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details.
 package alarm
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -76,32 +75,4 @@ func getPrometheusClientFromConfig() (*resty.Client, error) {
 		return nil, errors.Wrap(err, "new prometheus client failed")
 	}
 	return client, nil
-}
-
-func reloadAlertmanager() error {
-	client, err := getAlertmanagerClientFromConfig()
-	if err != nil {
-		return errors.Wrap(err, "new alertmanager client failed")
-	}
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.AlertmanagerReloadUrl)
-	if err != nil {
-		return errors.Wrap(err, "reload alertmanager failed")
-	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Errorf("reload alertmanager got unexpected status: %d", resp.StatusCode())
-	}
-	return nil
-}
-
-func reloadPrometheus() error {
-	client, err := getPrometheusClientFromConfig()
-	if err != nil {
-		return errors.Wrap(err, "new prometheus client failed")
-	}
-	resp, err := client.R().SetHeader("content-type", "application/json").Post(alarmconstant.PrometheusReloadUrl)
-	if err != nil {
-		return errors.Wrap(err, "reload prometheus failed")
-	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Errorf("reload prometheus got unexpected status: %d", resp.StatusCode())
-	}
-	return nil
 }
