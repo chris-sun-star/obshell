@@ -67,7 +67,7 @@ func GetPrometheusConfig(c *gin.Context) {
 		common.SendResponse(c, nil, err)
 		return
 	}
-	common.SendResponse(c, cfg, nil)
+	common.SendResponse(c, cfg.Address, nil)
 }
 
 // @Summary Set Alertmanager configuration
@@ -113,5 +113,5 @@ func GetAlertmanagerConfig(c *gin.Context) {
 		common.SendResponse(c, nil, err)
 		return
 	}
-	common.SendResponse(c, cfg, nil)
+	common.SendResponse(c, cfg.Address, nil)
 }
