@@ -19,6 +19,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/oceanbase/obshell/agent/api/common"
 	"github.com/oceanbase/obshell/agent/executor/alarm"
 	"github.com/oceanbase/obshell/model/alarm/alert"
 	"github.com/oceanbase/obshell/model/alarm/rule"
@@ -35,13 +36,15 @@ import (
 // @Param filter body alert.AlertFilter false "alert filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]alert.Alert}
 // @Router /api/v1/alarm/alert/alerts [post]
-func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
+func ListAlerts(ctx *gin.Context) {
 	filter := &alert.AlertFilter{}
 	err := ctx.Bind(filter)
 	if err != nil {
-		return nil, err
+		common.SendResponse(ctx, nil, err)
+		return
 	}
-	return alarm.ListAlerts(ctx, filter)
+	data, err := alarm.ListAlerts(ctx, filter)
+	common.SendResponse(ctx, data, err)
 }
 
 // ListSilencers godoc
@@ -54,13 +57,15 @@ func ListAlerts(ctx *gin.Context) ([]alert.Alert, error) {
 // @Param filter body silence.SilencerFilter false "silencer filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]silence.SilencerResponse}
 // @Router /api/v1/alarm/silence/silencers [post]
-func ListSilencers(ctx *gin.Context) ([]silence.SilencerResponse, error) {
+func ListSilencers(ctx *gin.Context) {
 	filter := &silence.SilencerFilter{}
 	err := ctx.Bind(filter)
 	if err != nil {
-		return nil, err
+		common.SendResponse(ctx, nil, err)
+		return
 	}
-	return alarm.ListSilencers(ctx, filter)
+	data, err := alarm.ListSilencers(ctx, filter)
+	common.SendResponse(ctx, data, err)
 }
 
 // GetSilencer godoc
@@ -73,9 +78,10 @@ func ListSilencers(ctx *gin.Context) ([]silence.SilencerResponse, error) {
 // @Param id path string true "silencer id"
 // @Success 200 {object} http.OcsAgentResponse{data=silence.SilencerResponse}
 // @Router /api/v1/alarm/silence/silencers/{id} [get]
-func GetSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
+func GetSilencer(ctx *gin.Context) {
 	id := ctx.Param("id")
-	return alarm.GetSilencer(ctx, id)
+	data, err := alarm.GetSilencer(ctx, id)
+	common.SendResponse(ctx, data, err)
 }
 
 // CreateOrUpdateSilencer godoc
@@ -88,13 +94,15 @@ func GetSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
 // @Param silencer body silence.SilencerParam true "silencer"
 // @Success 200 {object} http.OcsAgentResponse{data=silence.SilencerResponse}
 // @Router /api/v1/alarm/silence/silencers [put]
-func CreateOrUpdateSilencer(ctx *gin.Context) (*silence.SilencerResponse, error) {
+func CreateOrUpdateSilencer(ctx *gin.Context) {
 	param := &silence.SilencerParam{}
 	err := ctx.Bind(param)
 	if err != nil {
-		return nil, err
+		common.SendResponse(ctx, nil, err)
+		return
 	}
-	return alarm.CreateOrUpdateSilencer(ctx, param)
+	data, err := alarm.CreateOrUpdateSilencer(ctx, param)
+	common.SendResponse(ctx, data, err)
 }
 
 // DeleteSilencer godoc
@@ -107,9 +115,10 @@ func CreateOrUpdateSilencer(ctx *gin.Context) (*silence.SilencerResponse, error)
 // @Param id path string true "silencer id"
 // @Success 204
 // @Router /api/v1/alarm/silence/silencers/{id} [delete]
-func DeleteSilencer(ctx *gin.Context) (any, error) {
+func DeleteSilencer(ctx *gin.Context) {
 	id := ctx.Param("id")
-	return nil, alarm.DeleteSilencer(ctx, id)
+	_, err := alarm.DeleteSilencer(ctx, id)
+	common.SendNoContentResponse(ctx, err)
 }
 
 // ListRules godoc
@@ -122,13 +131,15 @@ func DeleteSilencer(ctx *gin.Context) (any, error) {
 // @Param filter body rule.RuleFilter false "rule filter"
 // @Success 200 {object} http.OcsAgentResponse{data=[]rule.RuleResponse}
 // @Router /api/v1/alarm/rule/rules [post]
-func ListRules(ctx *gin.Context) ([]rule.RuleResponse, error) {
+func ListRules(ctx *gin.Context) {
 	filter := &rule.RuleFilter{}
 	err := ctx.Bind(filter)
 	if err != nil {
-		return nil, err
+		common.SendResponse(ctx, nil, err)
+		return
 	}
-	return alarm.ListRules(ctx, filter)
+	data, err := alarm.ListRules(ctx, filter)
+	common.SendResponse(ctx, data, err)
 }
 
 // GetRule godoc
@@ -141,7 +152,8 @@ func ListRules(ctx *gin.Context) ([]rule.RuleResponse, error) {
 // @Param name path string true "rule name"
 // @Success 200 {object} http.OcsAgentResponse{data=rule.RuleResponse}
 // @Router /api/v1/alarm/rule/rules/{name} [get]
-func GetRule(ctx *gin.Context) (*rule.RuleResponse, error) {
+func GetRule(ctx *gin.Context) {
 	name := ctx.Param("name")
-	return alarm.GetRule(ctx, name)
+	data, err := alarm.GetRule(ctx, name)
+	common.SendResponse(ctx, data, err)
 }
