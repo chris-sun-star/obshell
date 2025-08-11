@@ -22,6 +22,7 @@ import (
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
 	metricexecutor "github.com/oceanbase/obshell/agent/executor/metric"
+	metricconstant "github.com/oceanbase/obshell/agent/executor/metric/constant"
 	"github.com/oceanbase/obshell/model/metric"
 	"github.com/sirupsen/logrus"
 )
@@ -43,11 +44,11 @@ func ListMetricMetas(c *gin.Context) {
 	language := c.GetHeader("Accept-Language")
 	scope := c.Query("scope")
 	switch scope {
-	case constant.SCOPE_CLUSTER,
-		constant.SCOPE_TENANT,
-		constant.SCOPE_CLUSTER_OVERVIEW,
-		constant.SCOPE_TENANT_OVERVIEW,
-		constant.SCOPE_OBPROXY:
+	case metricconstant.SCOPE_CLUSTER,
+		metricconstant.SCOPE_TENANT,
+		metricconstant.SCOPE_CLUSTER_OVERVIEW,
+		metricconstant.SCOPE_TENANT_OVERVIEW,
+		metricconstant.SCOPE_OBPROXY:
 	default:
 		common.SendResponse(c, nil, errors.Occur(errors.ErrCommonBadRequest, "invalid scope"))
 		return
