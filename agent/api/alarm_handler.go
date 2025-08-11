@@ -117,7 +117,7 @@ func CreateOrUpdateSilencer(ctx *gin.Context) {
 // @Router /api/v1/alarm/silence/silencers/{id} [delete]
 func DeleteSilencer(ctx *gin.Context) {
 	id := ctx.Param("id")
-	_, err := alarm.DeleteSilencer(ctx, id)
+	err := alarm.DeleteSilencer(ctx, id)
 	common.SendNoContentResponse(ctx, err)
 }
 
