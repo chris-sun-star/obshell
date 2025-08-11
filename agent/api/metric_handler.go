@@ -19,7 +19,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/oceanbase/obshell/agent/api/common"
-	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
 	metricexecutor "github.com/oceanbase/obshell/agent/executor/metric"
 	metricconstant "github.com/oceanbase/obshell/agent/executor/metric/constant"
