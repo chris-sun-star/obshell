@@ -29,6 +29,7 @@ import (
 	"github.com/oceanbase/obshell/agent/bindata"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
+	metricconstant "github.com/oceanbase/obshell/agent/executor/metric/constant"
 	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/common"
 	model "github.com/oceanbase/obshell/model/metric"
@@ -36,22 +37,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const (
-	METRIC_RANGE_QUERY_URL  = "/api/v1/query_range"
-	DEFAULT_TIMEOUT         = 30
-	METRIC_CONFIG_FILE_ENUS = "agent/assets/metric/metrics-en_US.yaml"
-	METRIC_CONFIG_FILE_ZHCN = "agent/assets/metric/metrics-zh_CN.yaml"
-	METRIC_EXPR_CONFIG_FILE = "agent/assets/metric/metric_expr.yaml"
-	KEY_INTERVAL            = "@INTERVAL"
-	KEY_LABELS              = "@LABELS"
-	KEY_GROUP_LABELS        = "@GBLABELS"
-)
-
 var metricExprConfig map[string]string
 
 func init() {
 	metricExprConfig = make(map[string]string)
-	metricExprConfigContent, err := bindata.Asset(METRIC_EXPR_CONFIG_FILE)
+	metricExprConfigContent, err := bindata.Asset(metricconstant.METRIC_EXPR_CONFIG_FILE)
 	if err != nil {
 		logrus.WithError(err).Error("load metric expr config failed")
 	}
@@ -63,12 +53,12 @@ func init() {
 
 func ListMetricClasses(scope, language string) ([]model.MetricClass, error) {
 	metricClasses := make([]model.MetricClass, 0)
-	configFile := METRIC_CONFIG_FILE_ENUS
+	configFile := metricconstant.METRIC_CONFIG_FILE_ENUS
 	switch language {
 	case constant.LANGUAGE_EN_US:
-		configFile = METRIC_CONFIG_FILE_ENUS
+		configFile = metricconstant.METRIC_CONFIG_FILE_ENUS
 	case constant.LANGUAGE_ZH_CN:
-		configFile = METRIC_CONFIG_FILE_ZHCN
+		configFile = metricconstant.METRIC_CONFIG_FILE_ZHCN
 	default:
 		logrus.Infof("Not supported language %s, return default", language)
 	}
@@ -78,7 +68,6 @@ func ListMetricClasses(scope, language string) ([]model.MetricClass, error) {
 		return metricClasses, err
 	}
 	metricConfigMap := make(map[string][]model.MetricClass)
-	// TODO: Do not unmarshal the file every time, cache the result
 	err = yaml.Unmarshal(metricConfigContent, &metricConfigMap)
 	if err != nil {
 		return metricClasses, err
@@ -98,7 +87,7 @@ func replaceQueryVariables(exprTemplate string, labels []common.KVPair, groupLab
 	}
 	labelStr := strings.Join(labelStrParts, ",")
 	groupLabelStr := strings.Join(groupLabels, ",")
-	replacer := strings.NewReplacer(KEY_INTERVAL, fmt.Sprintf("%ss", strconv.FormatInt(step, 10)), KEY_LABELS, labelStr, KEY_GROUP_LABELS, groupLabelStr)
+	replacer := strings.NewReplacer(metricconstant.KEY_INTERVAL, fmt.Sprintf("%ss", strconv.FormatInt(step, 10)), metricconstant.KEY_LABELS, labelStr, metricconstant.KEY_GROUP_LABELS, groupLabelStr)
 	return replacer.Replace(exprTemplate)
 }
 
@@ -171,7 +160,7 @@ func extractMetricData(name string, resp *model.PrometheusQueryRangeResponse) []
 }
 
 func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
-	client := resty.New().SetTimeout(time.Duration(DEFAULT_TIMEOUT * time.Second))
+	client := resty.New().SetTimeout(time.Duration(metricconstant.DEFAULT_TIMEOUT * time.Second))
 	repo, err := repository.NewExternalRepository()
 	if err != nil {
 		logrus.WithError(err).Error("get external repository failed")
@@ -209,7 +198,7 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 					"query": expr,
 				}).SetHeader("content-type", "application/json").
 					SetResult(queryRangeResp).
-					Get(fmt.Sprintf("%s%s", cfg.Address, METRIC_RANGE_QUERY_URL))
+					Get(fmt.Sprintf("%s%s", cfg.Address, metricconstant.METRIC_RANGE_QUERY_URL))
 				if err != nil {
 					logrus.Errorf("Query expression expr got error: %v", err)
 				} else if resp.StatusCode() == http.StatusOK {
