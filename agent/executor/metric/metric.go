@@ -29,8 +29,8 @@ import (
 	"github.com/oceanbase/obshell/agent/bindata"
 	"github.com/oceanbase/obshell/agent/constant"
 	"github.com/oceanbase/obshell/agent/errors"
+	configexecutor "github.com/oceanbase/obshell/agent/executor/config"
 	metricconstant "github.com/oceanbase/obshell/agent/executor/metric/constant"
-	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/oceanbase/obshell/model/common"
 	model "github.com/oceanbase/obshell/model/metric"
 	"github.com/sirupsen/logrus"
@@ -161,12 +161,7 @@ func extractMetricData(name string, resp *model.PrometheusQueryRangeResponse) []
 
 func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 	client := resty.New().SetTimeout(time.Duration(metricconstant.DEFAULT_TIMEOUT * time.Second))
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		logrus.WithError(err).Error("get external repository failed")
-		return nil
-	}
-	cfg, err := repo.GetPrometheusConfig()
+	cfg, err := configexecutor.GetPrometheusConfig()
 	if err != nil {
 		logrus.WithError(err).Error("get prometheus config failed")
 		return nil

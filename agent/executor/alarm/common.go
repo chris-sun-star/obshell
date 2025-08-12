@@ -22,8 +22,8 @@ import (
 	"github.com/go-resty/resty/v2"
 
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
+	configexecutor "github.com/oceanbase/obshell/agent/executor/config"
 	"github.com/oceanbase/obshell/agent/model/external"
-	"github.com/oceanbase/obshell/agent/repository"
 	"github.com/pkg/errors"
 )
 
@@ -44,11 +44,7 @@ func newPrometheusClient(cfg *external.PrometheusConfig) (*resty.Client, error) 
 }
 
 func getAlertmanagerClientFromConfig() (*resty.Client, error) {
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
+	cfg, err := configexecutor.GetAlertmanagerConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "get alertmanager config failed")
 	}
@@ -63,11 +59,7 @@ func getAlertmanagerClientFromConfig() (*resty.Client, error) {
 }
 
 func getPrometheusClientFromConfig() (*resty.Client, error) {
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		return nil, errors.Wrap(err, "get external repository failed")
-	}
-	cfg, err := repo.GetPrometheusConfig()
+	cfg, err := configexecutor.GetPrometheusConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "get prometheus config failed")
 	}
