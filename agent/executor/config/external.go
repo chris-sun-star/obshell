@@ -32,7 +32,7 @@ const (
 func SavePrometheusConfig(cfg *external.PrometheusConfig) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
-		return errors.Wrap(err, errors.ErrJsonMarshal.Code)
+		return errors.Occur(errors.ErrJsonMarshal, err.Error())
 	}
 	return configservice.SaveOcsConfig(PROMETHEUS_CONFIG_KEY, string(data), "Prometheus configuration")
 }
@@ -40,15 +40,15 @@ func SavePrometheusConfig(cfg *external.PrometheusConfig) error {
 func GetPrometheusConfig() (*external.PrometheusConfig, error) {
 	ocsConfig, err := configservice.GetOcsConfig(PROMETHEUS_CONFIG_KEY)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapRetain(errors.ErrConfigGetFailed, err, PROMETHEUS_CONFIG_KEY, err.Error())
 	}
 	if ocsConfig == nil {
-		return nil, nil
+		return nil, errors.Occurf(errors.ErrConfigNotFound, PROMETHEUS_CONFIG_KEY)
 	}
 	var cfg external.PrometheusConfig
 	err = json.Unmarshal([]byte(ocsConfig.Value), &cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrJsonUnmarshal.Code)
+		return nil, errors.Occur(errors.ErrJsonUnmarshal, err.Error())
 	}
 	return &cfg, nil
 }
@@ -56,7 +56,7 @@ func GetPrometheusConfig() (*external.PrometheusConfig, error) {
 func SaveAlertmanagerConfig(cfg *external.AlertmanagerConfig) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
-		return errors.Wrap(err, errors.ErrJsonMarshal.Code)
+		return errors.Occur(errors.ErrJsonMarshal, err.Error())
 	}
 	return configservice.SaveOcsConfig(ALERTMANAGER_CONFIG_KEY, string(data), "Alertmanager configuration")
 }
@@ -64,7 +64,7 @@ func SaveAlertmanagerConfig(cfg *external.AlertmanagerConfig) error {
 func GetAlertmanagerConfig() (*external.AlertmanagerConfig, error) {
 	ocsConfig, err := configservice.GetOcsConfig(ALERTMANAGER_CONFIG_KEY)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapRetain(errors.ErrConfigGetFailed, err, ALERTMANAGER_CONFIG_KEY, err.Error())
 	}
 	if ocsConfig == nil {
 		return nil, nil
@@ -72,7 +72,7 @@ func GetAlertmanagerConfig() (*external.AlertmanagerConfig, error) {
 	var cfg external.AlertmanagerConfig
 	err = json.Unmarshal([]byte(ocsConfig.Value), &cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.ErrJsonUnmarshal.Code)
+		return nil, errors.Occur(errors.ErrJsonUnmarshal, err.Error())
 	}
 	return &cfg, nil
 }

@@ -21,9 +21,9 @@ import (
 	"net/http"
 	"strings"
 
+	errors "github.com/oceanbase/obshell/agent/errors"
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/model/alarm/alert"
-	"github.com/pkg/errors"
 
 	ammodels "github.com/prometheus/alertmanager/api/v2/models"
 	logger "github.com/sirupsen/logrus"
@@ -34,10 +34,9 @@ func ListAlerts(ctx context.Context, filter *alert.AlertFilter) ([]alert.Alert, 
 
 	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "new alertmanager client failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmClientFailed, err)
 	}
 
-	// TODO is it possible to request without parameters
 	resp, err := client.R().SetContext(ctx).SetQueryParams(map[string]string{
 		"active":      "true",
 		"silenced":    "true",
@@ -46,9 +45,9 @@ func ListAlerts(ctx context.Context, filter *alert.AlertFilter) ([]alert.Alert, 
 		"receiver":    "",
 	}).SetHeader("content-type", "application/json").SetResult(&gettableAlerts).Get(alarmconstant.AlertUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "query alerts from alertmanager failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("query alerts from alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Occur(errors.ErrAlarmUnexpectedStatus, resp.StatusCode())
 	}
 	filteredAlerts := make([]alert.Alert, 0)
 	for _, gettableAlert := range gettableAlerts {

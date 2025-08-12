@@ -21,54 +21,48 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
+	"github.com/oceanbase/obshell/agent/errors"
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	configexecutor "github.com/oceanbase/obshell/agent/executor/config"
 	"github.com/oceanbase/obshell/agent/model/external"
-	"github.com/pkg/errors"
 )
 
-func newClient(address string, auth *external.Auth) (*resty.Client, error) {
+func newClient(address string, auth *external.Auth) *resty.Client {
 	client := resty.New().SetTimeout(time.Duration(alarmconstant.DefaultAlarmQueryTimeout * time.Second)).SetHostURL(address)
 	if auth != nil && auth.Username != "" {
 		client.SetBasicAuth(auth.Username, auth.Password)
 	}
-	return client, nil
+	return client
 }
 
-func newAlertmanagerClient(cfg *external.AlertmanagerConfig) (*resty.Client, error) {
+func newAlertmanagerClient(cfg *external.AlertmanagerConfig) *resty.Client {
 	return newClient(cfg.Address, cfg.Auth)
 }
 
-func newPrometheusClient(cfg *external.PrometheusConfig) (*resty.Client, error) {
+func newPrometheusClient(cfg *external.PrometheusConfig) *resty.Client {
 	return newClient(cfg.Address, cfg.Auth)
 }
 
 func getAlertmanagerClientFromConfig() (*resty.Client, error) {
 	cfg, err := configexecutor.GetAlertmanagerConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "get alertmanager config failed")
+		return nil, errors.WrapRetain(errors.ErrConfigGetFailed, err, configexecutor.ALERTMANAGER_CONFIG_KEY, err.Error())
 	}
 	if cfg == nil {
-		return nil, errors.New("alertmanager config not found")
+		return nil, errors.Occur(errors.ErrConfigNotFound, configexecutor.ALERTMANAGER_CONFIG_KEY)
 	}
-	client, err := newAlertmanagerClient(cfg)
-	if err != nil {
-		return nil, errors.Wrap(err, "new alertmanager client failed")
-	}
+	client := newAlertmanagerClient(cfg)
 	return client, nil
 }
 
 func getPrometheusClientFromConfig() (*resty.Client, error) {
 	cfg, err := configexecutor.GetPrometheusConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "get prometheus config failed")
+		return nil, errors.WrapRetain(errors.ErrConfigGetFailed, err, configexecutor.PROMETHEUS_CONFIG_KEY, err.Error())
 	}
 	if cfg == nil {
-		return nil, errors.New("prometheus config not found")
+		return nil, errors.Occur(errors.ErrConfigNotFound, configexecutor.ALERTMANAGER_CONFIG_KEY)
 	}
-	client, err := newPrometheusClient(cfg)
-	if err != nil {
-		return nil, errors.Wrap(err, "new prometheus client failed")
-	}
+	client := newPrometheusClient(cfg)
 	return client, nil
 }

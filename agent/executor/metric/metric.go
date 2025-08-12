@@ -33,7 +33,7 @@ import (
 	metricconstant "github.com/oceanbase/obshell/agent/executor/metric/constant"
 	"github.com/oceanbase/obshell/model/common"
 	model "github.com/oceanbase/obshell/model/metric"
-	"github.com/sirupsen/logrus"
+	logger "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -43,11 +43,11 @@ func init() {
 	metricExprConfig = make(map[string]string)
 	metricExprConfigContent, err := bindata.Asset(metricconstant.METRIC_EXPR_CONFIG_FILE)
 	if err != nil {
-		logrus.WithError(err).Error("load metric expr config failed")
+		logger.WithError(err).Error("load metric expr config failed")
 	}
 	err = yaml.Unmarshal(metricExprConfigContent, &metricExprConfig)
 	if err != nil {
-		logrus.WithError(err).Error("parse metric expr config data failed")
+		logger.WithError(err).Error("parse metric expr config data failed")
 	}
 }
 
@@ -60,22 +60,22 @@ func ListMetricClasses(scope, language string) ([]model.MetricClass, error) {
 	case constant.LANGUAGE_ZH_CN:
 		configFile = metricconstant.METRIC_CONFIG_FILE_ZHCN
 	default:
-		logrus.Infof("Not supported language %s, return default", language)
+		logger.Infof("Not supported language %s, return default", language)
 	}
 
 	metricConfigContent, err := bindata.Asset(configFile)
 	if err != nil {
-		return metricClasses, err
+		return metricClasses, errors.Occur(errors.ErrCommonUnexpected, err.Error())
 	}
 	metricConfigMap := make(map[string][]model.MetricClass)
 	err = yaml.Unmarshal(metricConfigContent, &metricConfigMap)
 	if err != nil {
-		return metricClasses, err
+		return metricClasses, errors.Occur(errors.ErrJsonUnmarshal, err.Error())
 	}
-	logrus.Debugf("metric configs: %v", metricConfigMap)
+	logger.Debugf("metric configs: %v", metricConfigMap)
 	metricClasses, found := metricConfigMap[scope]
 	if !found {
-		err = errors.Errorf("metric config for scope %s not found", scope)
+		err = errors.Occur(errors.ErrMetricConfigNotFound, scope)
 	}
 	return metricClasses, err
 }
@@ -112,10 +112,10 @@ func extractMetricData(name string, resp *model.PrometheusQueryRangeResponse) []
 			t := value[0].(float64)
 			v, err := strconv.ParseFloat(value[1].(string), 64)
 			if err != nil {
-				logrus.Warnf("failed to parse value %v", value)
+				logger.Warnf("Failed to parse value %v", err)
 				invalidTimestamps = append(invalidTimestamps, t)
 			} else if math.IsNaN(v) {
-				logrus.Debugf("value at timestamp %f is NaN", t)
+				logger.Debugf("value at timestamp %f is NaN", t)
 				invalidTimestamps = append(invalidTimestamps, t)
 			} else {
 				// if there are invalid timestamps, interpolate them
@@ -163,11 +163,11 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 	client := resty.New().SetTimeout(time.Duration(metricconstant.DEFAULT_TIMEOUT * time.Second))
 	cfg, err := configexecutor.GetPrometheusConfig()
 	if err != nil {
-		logrus.WithError(err).Error("get prometheus config failed")
+		logger.WithError(err).Error("Get prometheus config failed")
 		return nil
 	}
 	if cfg == nil {
-		logrus.Error("prometheus config not found")
+		logger.Error("Prometheus config is nil")
 		return nil
 	}
 	if cfg.Auth != nil && cfg.Auth.Username != "" {
@@ -184,7 +184,7 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 			go func(m string, ch chan []model.MetricData) {
 				defer wg.Done()
 				expr := replaceQueryVariables(exprTemplate, queryParam.Labels, queryParam.GroupLabels, queryParam.QueryRange.Step)
-				logrus.Infof("Query with expr: %s, range: %v", expr, queryParam.QueryRange)
+				logger.Infof("Query with expr: %s, range: %v", expr, queryParam.QueryRange)
 				queryRangeResp := &model.PrometheusQueryRangeResponse{}
 				resp, err := client.R().SetQueryParams(map[string]string{
 					"start": strconv.FormatFloat(queryParam.QueryRange.StartTimestamp, 'f', 3, 64),
@@ -195,13 +195,15 @@ func QueryMetricData(queryParam *model.MetricQuery) []model.MetricData {
 					SetResult(queryRangeResp).
 					Get(fmt.Sprintf("%s%s", cfg.Address, metricconstant.METRIC_RANGE_QUERY_URL))
 				if err != nil {
-					logrus.Errorf("Query expression expr got error: %v", err)
+					logger.WithError(err).Error("Query expression expr got error")
 				} else if resp.StatusCode() == http.StatusOK {
 					ch <- extractMetricData(m, queryRangeResp)
+				} else {
+					logger.Errorf("Query metrics from prometheus got unexpected status: %d", resp.StatusCode())
 				}
 			}(m, metricDataCh)
 		} else {
-			logrus.Warnf("Metric %s expression not found", m)
+			logger.Errorf("Metric expression for %s not found", m)
 		}
 	}
 	wg.Wait()

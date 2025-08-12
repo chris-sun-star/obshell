@@ -22,9 +22,9 @@ import (
 	"net/http"
 	"strings"
 
+	errors "github.com/oceanbase/obshell/agent/errors"
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/model/alarm/rule"
-	"github.com/pkg/errors"
 
 	promv1 "github.com/prometheus/prometheus/web/api/v1"
 	logger "github.com/sirupsen/logrus"
@@ -33,27 +33,27 @@ import (
 func GetRule(ctx context.Context, name string) (*rule.RuleResponse, error) {
 	rules, err := ListRules(ctx, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "query rules from prometheus failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	}
 	for _, rule := range rules {
 		if rule.Name == name {
 			return &rule, nil
 		}
 	}
-	return nil, errors.New("rule not found")
+	return nil, errors.Occur(errors.ErrAlarmRuleNotFound, name)
 }
 
 func ListRules(ctx context.Context, filter *rule.RuleFilter) ([]rule.RuleResponse, error) {
 	promRuleResponse := &rule.PromRuleResponse{}
 	client, err := getPrometheusClientFromConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "new prometheus client failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmClientFailed, err)
 	}
 	resp, err := client.R().SetContext(ctx).SetQueryParam("type", "alert").SetHeader("content-type", "application/json").SetResult(promRuleResponse).Get(alarmconstant.RuleUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "query rules from prometheus failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("query rules from prometheus got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Occur(errors.ErrAlarmUnexpectedStatus, resp.StatusCode())
 	}
 	logger.Debugf("Response from prometheus: %v", resp)
 	filteredRules := make([]rule.RuleResponse, 0)

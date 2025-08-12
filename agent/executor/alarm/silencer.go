@@ -23,10 +23,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/oceanbase/obshell/agent/errors"
 	alarmconstant "github.com/oceanbase/obshell/agent/executor/alarm/constant"
 	"github.com/oceanbase/obshell/model/alarm/silence"
 	"github.com/oceanbase/obshell/model/oceanbase"
-	"github.com/pkg/errors"
 
 	"github.com/go-openapi/strfmt"
 	ammodels "github.com/prometheus/alertmanager/api/v2/models"
@@ -37,13 +37,13 @@ import (
 func DeleteSilencer(ctx context.Context, id string) error {
 	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
-		return errors.Wrap(err, "new alertmanager client failed")
+		return errors.WrapRetain(errors.ErrAlarmClientFailed, err)
 	}
 	resp, err := client.R().SetContext(ctx).SetHeader("content-type", "application/json").Delete(fmt.Sprintf("%s/%s", alarmconstant.SingleSilencerUrl, id))
 	if err != nil {
-		return errors.Wrap(err, "delete silencer from alertmanager failed")
+		return errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.Errorf("delete silencer got unexpected status: %d", resp.StatusCode())
+		return errors.Occur(errors.ErrAlarmUnexpectedStatus, resp.StatusCode())
 	}
 	return nil
 }
@@ -52,13 +52,13 @@ func GetSilencer(ctx context.Context, id string) (*silence.SilencerResponse, err
 	gettableSilencer := ammodels.GettableSilence{}
 	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "new alertmanager client failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmClientFailed, err)
 	}
 	resp, err := client.R().SetContext(ctx).SetHeader("content-type", "application/json").SetResult(&gettableSilencer).Get(fmt.Sprintf("%s/%s", alarmconstant.SingleSilencerUrl, id))
 	if err != nil {
-		return nil, errors.Wrap(err, "get silencer from alertmanager failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("get silencer got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Occur(errors.ErrAlarmUnexpectedStatus, resp.StatusCode())
 	}
 	return silence.NewSilencerResponse(&gettableSilencer), nil
 }
@@ -90,10 +90,10 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 			instanceType = instance.Type
 		}
 		if instance.Type != instanceType {
-			return nil, errors.New("All instances should belong to one type")
+			return nil, errors.Occur(errors.ErrAlarmSilencerInstanceTypeMismatch)
 		}
 		if instanceType != oceanbase.TypeOBCluster && obcluster != "" && obcluster != instance.OBCluster {
-			return nil, errors.New("All instances should belong to one obcluster")
+			return nil, errors.Occur(errors.ErrAlarmSilencerOBClusterMismatch)
 		}
 		obcluster = instance.OBCluster
 		switch instance.Type {
@@ -109,7 +109,7 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 			instances = append(instances, instance.OBTenant)
 			labelInstance = alarmconstant.LabelOBTenant
 		default:
-			return nil, errors.New("Unknown instance type")
+			return nil, errors.Occur(errors.ErrAlarmSilencerUnknownInstanceType, instance.Type)
 		}
 	}
 	instanceValues := strings.Join(instances, alarmconstant.RegexOR)
@@ -164,13 +164,13 @@ func CreateOrUpdateSilencer(ctx context.Context, param *silence.SilencerParam) (
 	okBody := amsilence.PostSilencesOKBody{}
 	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "new alertmanager client failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmClientFailed, err)
 	}
 	resp, err := client.R().SetContext(ctx).SetHeader("content-type", "application/json").SetBody(postableSilence).SetResult(&okBody).Post(alarmconstant.MultiSilencerUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "create silencer in alertmanager failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("create silencer in alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Occur(errors.ErrAlarmUnexpectedStatus, resp.StatusCode())
 	}
 	state := string(silence.StateActive)
 	gettableSilencer := ammodels.GettableSilence{
@@ -189,14 +189,14 @@ func ListSilencers(ctx context.Context, filter *silence.SilencerFilter) ([]silen
 	gettableSilencers := make(ammodels.GettableSilences, 0)
 	client, err := getAlertmanagerClientFromConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "new alertmanager client failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmClientFailed, err)
 	}
 	req := client.R().SetContext(ctx).SetHeader("content-type", "application/json")
 	resp, err := req.SetResult(&gettableSilencers).Get(alarmconstant.MultiSilencerUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "query silencers from alertmanager failed")
+		return nil, errors.WrapRetain(errors.ErrAlarmQueryFailed, err)
 	} else if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("query silencers from alertmanager got unexpected status: %d", resp.StatusCode())
+		return nil, errors.Occur(errors.ErrAlarmUnexpectedStatus, resp.StatusCode())
 	}
 	logger.Infof("resp: %v", resp)
 	logger.Infof("silencers: %v", gettableSilencers)

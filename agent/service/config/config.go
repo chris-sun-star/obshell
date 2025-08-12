@@ -26,7 +26,7 @@ import (
 func SaveOcsConfig(name, value, info string) error {
 	db, err := obdb.GetOcsInstance()
 	if err != nil {
-		return errors.Wrap(err, "get oceanbase instance failed")
+		return errors.Wrap(err, "Get oceanbase instance failed")
 	}
 	cfg := obmodel.OcsConfig{
 		Name:  name,
@@ -39,7 +39,7 @@ func SaveOcsConfig(name, value, info string) error {
 func GetOcsConfig(name string) (*obmodel.OcsConfig, error) {
 	db, err := obdb.GetOcsInstance()
 	if err != nil {
-		return nil, errors.Wrap(err, "get oceanbase instance failed")
+		return nil, errors.Wrap(err, "Get oceanbase instance failed")
 	}
 	var cfg obmodel.OcsConfig
 	err = db.Where("name = ?", name).First(&cfg).Error
@@ -47,7 +47,7 @@ func GetOcsConfig(name string) (*obmodel.OcsConfig, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, errors.Wrap(err, "get ocs config failed")
+		return nil, errors.Wrap(err, "Get ocs config failed")
 	}
 	return &cfg, nil
 }
