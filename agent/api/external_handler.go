@@ -20,8 +20,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/oceanbase/obshell/agent/api/common"
+	configexecutor "github.com/oceanbase/obshell/agent/executor/config"
 	"github.com/oceanbase/obshell/agent/model/external"
-	"github.com/oceanbase/obshell/agent/repository"
 )
 
 // @Summary Set Prometheus configuration
@@ -40,12 +40,7 @@ func SetPrometheusConfig(c *gin.Context) {
 		common.SendResponse(c, nil, err)
 		return
 	}
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		common.SendResponse(c, nil, err)
-		return
-	}
-	common.SendResponse(c, nil, repo.SavePrometheusConfig(&cfg))
+	common.SendResponse(c, nil, configexecutor.SavePrometheusConfig(&cfg))
 }
 
 // @Summary Get Prometheus configuration
@@ -57,12 +52,7 @@ func SetPrometheusConfig(c *gin.Context) {
 // @Failure 500 {object} http.OcsAgentResponse
 // @Router /api/v1/system/externals/prometheus [get]
 func GetPrometheusConfig(c *gin.Context) {
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		common.SendResponse(c, nil, err)
-		return
-	}
-	cfg, err := repo.GetPrometheusConfig()
+	cfg, err := configexecutor.GetPrometheusConfig()
 	if err != nil {
 		common.SendResponse(c, nil, err)
 		return
@@ -86,12 +76,7 @@ func SetAlertmanagerConfig(c *gin.Context) {
 		common.SendResponse(c, nil, err)
 		return
 	}
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		common.SendResponse(c, nil, err)
-		return
-	}
-	common.SendResponse(c, nil, repo.SaveAlertmanagerConfig(&cfg))
+	common.SendResponse(c, nil, configexecutor.SaveAlertmanagerConfig(&cfg))
 }
 
 // @Summary Get Alertmanager configuration
@@ -103,12 +88,7 @@ func SetAlertmanagerConfig(c *gin.Context) {
 // @Failure 500 {object} http.OcsAgentResponse
 // @Router /api/v1/system/externals/alertmanager [get]
 func GetAlertmanagerConfig(c *gin.Context) {
-	repo, err := repository.NewExternalRepository()
-	if err != nil {
-		common.SendResponse(c, nil, err)
-		return
-	}
-	cfg, err := repo.GetAlertmanagerConfig()
+	cfg, err := configexecutor.GetAlertmanagerConfig()
 	if err != nil {
 		common.SendResponse(c, nil, err)
 		return
