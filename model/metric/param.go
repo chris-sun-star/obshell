@@ -29,10 +29,4 @@ type MetricQuery struct {
 	GroupLabels []string        `json:"groupLabels"`
 	QueryRange  QueryRange      `json:"queryRange"`
 	Metrics     []string        `json:"metrics"`
-	Server      *Prometheus     `json:"server"`
-}
-
-type Prometheus struct {
-	Host string `json:"host"`
-	Port int    `json:"port"`
 }
