@@ -67,7 +67,7 @@ func GetAlertmanagerConfig() (*external.AlertmanagerConfig, error) {
 		return nil, errors.WrapRetain(errors.ErrConfigGetFailed, err, ALERTMANAGER_CONFIG_KEY, err.Error())
 	}
 	if ocsConfig == nil {
-		return nil, nil
+		return nil, errors.Occur(errors.ErrConfigNotFound, ALERTMANAGER_CONFIG_KEY)
 	}
 	var cfg external.AlertmanagerConfig
 	err = json.Unmarshal([]byte(ocsConfig.Value), &cfg)
