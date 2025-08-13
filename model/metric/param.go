@@ -27,7 +27,7 @@ type QueryRange struct {
 type MetricQuery struct {
 	Labels      []common.KVPair `json:"labels"`
 	GroupLabels []string        `json:"groupLabels"`
-	QueryRange  QueryRange      `json:"range"`
+	QueryRange  QueryRange      `json:"queryRange"`
 	Metrics     []string        `json:"metrics"`
 	Server      *Prometheus     `json:"server"`
 }
